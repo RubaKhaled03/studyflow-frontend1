@@ -117,9 +117,17 @@ export function Navbar() {
               <button className="text-sm font-medium text-muted-foreground hover:text-foreground">
                 EN
               </button>
-
-              <Button variant="ghost" size="icon">
-                <Moon className="h-5 w-5" />
+              {/* Theme */}
+              <Button
+                variant="theme"
+                size="icon"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              >
+                {theme === "dark" ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                )}
               </Button>
             </div>
 
