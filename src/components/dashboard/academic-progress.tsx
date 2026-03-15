@@ -11,7 +11,7 @@ import { Progress } from "@/components/ui/progress";
 import { GraduationCap, ArrowRight, Percent } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { PlannerCourse, AcademicPlannerConfig } from "@/types/academic-planning";
+import { AcademicPlannerConfig } from "@/types/academic-planning";
 import { calculateCumulativeAverage, calculatePassedCompletedCredits } from "@/lib/academic-planning/utils";
 
 interface AcademicProgressProps {

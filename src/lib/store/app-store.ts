@@ -107,7 +107,7 @@ export class AppStore {
       const plannerConfig = localStorage.getItem("studyflow_planner_config");
       
       if (plannerSemesters) newState.academicPlanning.semesters = JSON.parse(plannerSemesters);
-      if (plannerCourses) newState.academicPlanning.courses = JSON.parse(plannerCourses);
+      if (plannerCourses) newState.courses = JSON.parse(plannerCourses);
       if (plannerConfig) newState.academicPlanning.config = JSON.parse(plannerConfig);
 
       const reflectionData = localStorage.getItem("studyflow_reflections");

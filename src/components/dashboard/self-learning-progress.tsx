@@ -10,6 +10,7 @@ import { Route, PlaySquare, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 import { LearningPlan } from "@/types/self-learning";
+import { calcPlanProgress } from "@/lib/self-learning/utils";
 
 interface SelfLearningProgressProps {
   plans: LearningPlan[];
@@ -17,7 +18,7 @@ interface SelfLearningProgressProps {
 
 export function SelfLearningProgress({ plans }: SelfLearningProgressProps) {
   const activePlans = plans.filter(p => p.status === "active");
-  const currentPlan = activePlans.sort((a, b) => (b.progress || 0) - (a.progress || 0))[0];
+  const currentPlan = activePlans.sort((a, b) => calcPlanProgress(b) - calcPlanProgress(a))[0];
 
   return (
     <Card className="flex flex-col h-full border-none shadow-sm hover:shadow-md transition-shadow">
@@ -44,9 +45,9 @@ export function SelfLearningProgress({ plans }: SelfLearningProgressProps) {
               <div className="space-y-1.5 mt-2">
                 <div className="flex justify-between text-xs font-semibold">
                   <span>Course Progress</span>
-                  <span className="text-primary">{currentPlan.progress}%</span>
+                  <span className="text-primary">{calcPlanProgress(currentPlan)}%</span>
                 </div>
-                <Progress value={currentPlan.progress} className="h-2 rounded-full" />
+                <Progress value={calcPlanProgress(currentPlan)} className="h-2 rounded-full" />
               </div>
             </div>
           </div>

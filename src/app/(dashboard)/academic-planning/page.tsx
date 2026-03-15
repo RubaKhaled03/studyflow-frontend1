@@ -118,7 +118,7 @@ export default function AcademicPlanningPage() { // Changed component name
 
   const handleOpenEditCourse = (course: Course) => { // Changed handler name, type to Course
     setEditingCourse(course);
-    setActiveSemesterId(course.semesterId); // Changed state variable name
+    setActiveSemesterId(course.semesterId ?? null); // Changed state variable name
     setIsCourseDialogOpen(true); // Changed state variable name
   };
 

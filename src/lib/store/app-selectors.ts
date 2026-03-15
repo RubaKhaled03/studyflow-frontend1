@@ -16,9 +16,7 @@ export function selectDashboardStats(state: AppState) {
     ? state.academicPlanning.semesters
     : [];
 
-  const plannerCourses = plannerSemesters.flatMap((semester) =>
-    Array.isArray(semester.courses) ? semester.courses : [],
-  );
+  const plannerCourses = courses;
 
   const activeCourses = courses.filter((c) => c.status === "current").length;
 
@@ -251,9 +249,7 @@ export function selectAcademicSummary(state: AppState) {
   const { semesters, config } = state.academicPlanning;
   const { userProfile } = state;
 
-  const courses = Array.isArray(semesters)
-    ? semesters.flatMap((s) => (Array.isArray(s.courses) ? s.courses : []))
-    : [];
+  const courses = state.courses;
 
   // Parse baseline values
   const baselineAverage = parseFloat(userProfile.currentGPA) || 0;

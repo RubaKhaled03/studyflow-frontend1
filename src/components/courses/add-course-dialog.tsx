@@ -243,7 +243,7 @@ export function AddCourseDialog({
             <h2 className="text-2xl font-bold text-foreground">
               {isEditing ? "Edit Course" : "Add Course"}
             </h2>
-            <Button variant="ghost" size="icon" onClick={handleClose} className="h-8 w-8 rounded-full">
+            <Button variant="ghost" size="icon" onClick={() => handleClose()} className="h-8 w-8 rounded-full">
               <X className="h-5 w-5 text-muted-foreground" />
             </Button>
           </div>
@@ -474,7 +474,7 @@ export function AddCourseDialog({
             </div>
 
             <div className="flex gap-3 pt-2">
-              <Button variant="outline" type="button" onClick={handleClose} className="flex-1 rounded-xl h-11">
+              <Button variant="outline" type="button" onClick={() => handleClose()} className="flex-1 rounded-xl h-11">
                 Cancel
               </Button>
               <Button type="submit" className="flex-1 rounded-xl h-11 bg-primary hover:bg-secondary">

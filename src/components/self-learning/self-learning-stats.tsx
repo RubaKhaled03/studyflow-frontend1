@@ -1,10 +1,10 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
-import { SelfLearningStats } from "@/types/self-learning";
+import { type SelfLearningStats as StatsType } from "@/types/self-learning";
 import { BookOpen, Zap, CheckCircle2, PauseCircle, CalendarCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface StatsProps { stats: SelfLearningStats; }
+interface StatsProps { stats: StatsType; }
 
 const CARDS = [
   { key: "total",              label: "Total Plans",         icon: BookOpen,      gradient: "from-violet-500 to-purple-600",  bg: "bg-violet-50 dark:bg-violet-900/20" },
@@ -24,7 +24,7 @@ export function SelfLearningStats({ stats }: StatsProps) {
               <Icon className={cn("w-5 h-5", gradient.split(' ')[0].replace('from-', 'text-'))} />
             </div>
             <div>
-              <p className="text-2xl font-bold text-foreground tabular-nums">{stats[key as keyof SelfLearningStats]}</p>
+              <p className="text-2xl font-bold text-foreground tabular-nums">{stats[key as keyof StatsType]}</p>
               <p className="text-xs text-muted-foreground font-medium">{label}</p>
             </div>
           </CardContent>

@@ -1,4 +1,4 @@
-import { PlannerCourse } from "@/types/academic-planning";
+import { Course } from "@/types/course";
 import { isPassingGrade } from "./grading";
 
 /**
@@ -10,7 +10,7 @@ import { isPassingGrade } from "./grading";
  * @param baselineCredits Optional baseline credits already completed
  */
 export function calculateCumulativeAverage(
-  courses: PlannerCourse[] | null | undefined,
+  courses: Course[] | null | undefined,
   baselineAverage?: number,
   baselineCredits?: number
 ): number | null {
@@ -45,7 +45,7 @@ export function calculateCumulativeAverage(
  * Calculates total passed completed credits, incorporating baseline.
  */
 export function calculatePassedCompletedCredits(
-  courses: PlannerCourse[] | null | undefined,
+  courses: Course[] | null | undefined,
   baselineCredits?: number
 ): number {
   const safeCourses = Array.isArray(courses) ? courses : [];
@@ -66,7 +66,7 @@ export function calculatePassedCompletedCredits(
 /**
  * Calculates total failed completed credits.
  */
-export function calculateFailedCompletedCredits(courses: PlannerCourse[]): number {
+export function calculateFailedCompletedCredits(courses: Course[]): number {
   const safeCourses = Array.isArray(courses) ? courses : [];
   return safeCourses
     .filter(
@@ -82,17 +82,17 @@ export function calculateFailedCompletedCredits(courses: PlannerCourse[]): numbe
 /**
  * Calculates credits for currently in-progress courses.
  */
-export function calculateInProgressCredits(courses: PlannerCourse[]): number {
+export function calculateInProgressCredits(courses: Course[]): number {
   const safeCourses = Array.isArray(courses) ? courses : [];
   return safeCourses
-    .filter((c) => c.status === "in-progress")
+    .filter((c) => c.status === "current")
     .reduce((sum, c) => sum + c.credits, 0);
 }
 
 /**
  * Calculates credits for planned courses.
  */
-export function calculatePlannedCredits(courses: PlannerCourse[]): number {
+export function calculatePlannedCredits(courses: Course[]): number {
   const safeCourses = Array.isArray(courses) ? courses : [];
   return safeCourses
     .filter((c) => c.status === "planned")
@@ -104,7 +104,7 @@ export function calculatePlannedCredits(courses: PlannerCourse[]): number {
  */
 export function estimateRemainingSemesters(
   remainingTargetCredits: number,
-  semestersCourses: PlannerCourse[][],
+  semestersCourses: Course[][],
   defaultSemesterLoad: number
 ): number {
   if (remainingTargetCredits <= 0) return 0;
@@ -129,7 +129,7 @@ export function estimateRemainingSemesters(
 }
 
 // Helper for semester estimation to avoid circular baseline recursion
-function coursesPassedInSemester(courses: PlannerCourse[]): number {
+function coursesPassedInSemester(courses: Course[]): number {
     return courses
       .filter(c => c.status === "completed" && c.numericGrade !== undefined && c.numericGrade !== null && isPassingGrade(c.numericGrade))
       .reduce((sum, c) => sum + c.credits, 0);

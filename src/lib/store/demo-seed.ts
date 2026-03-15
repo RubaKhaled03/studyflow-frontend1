@@ -89,7 +89,7 @@ export const DEMO_APP_STATE: AppState = {
       category: "Tech",
       status: "active",
       goal: "Become a professional full-stack developer",
-      progress: 45,
+
       stages: [],
       resources: [],
       startDate: new Date().toISOString(),

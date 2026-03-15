@@ -13,9 +13,10 @@ interface CourseCardProps {
   course: Course;
   onEdit: (course: Course) => void;
   onDelete: (course: Course) => void;
+  semesterName?: string;
 }
 
-export function CourseCard({ course, onEdit, onDelete }: CourseCardProps) {
+export function CourseCard({ course, onEdit, onDelete, semesterName }: CourseCardProps) {
   const statusColors = {
     current: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
     completed:
@@ -67,7 +68,7 @@ export function CourseCard({ course, onEdit, onDelete }: CourseCardProps) {
 
         <div className="flex flex-wrap gap-1 text-xs text-muted-foreground">
           <span className="whitespace-nowrap">{course.credits} Cr</span>
-          <span className="whitespace-nowrap">{course.semester}</span>
+          <span className="whitespace-nowrap">{semesterName || course.academicPeriod || "Semester"}</span>
           {course.durationWeeks && (
             <span className="whitespace-nowrap">{course.durationWeeks}w</span>
           )}

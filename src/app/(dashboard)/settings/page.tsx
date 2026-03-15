@@ -13,7 +13,6 @@ import { Save, CheckCircle2, LogOut, AlertCircle, RefreshCcw } from "lucide-reac
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
-import { academicPeriods, semesterLabels } from "@/types/academic-planning";
 
 export default function SettingsPage() {
   const { state, isLoaded, updateState } = useAppState();
@@ -80,7 +79,7 @@ export default function SettingsPage() {
         ...state.academicPlanning,
         config: {
           ...state.academicPlanning.config,
-          totalRequiredCredits: parseInt(localProfile.totalRequiredCredits) || 144
+          totalRequiredCredits: parseInt(localProfile.totalCreditHours) || 144
         }
       }
     });

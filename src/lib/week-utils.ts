@@ -929,7 +929,7 @@ export function toggleAssignmentSubmission(
     const assignment = week.assignments[assignmentIndex];
     week.assignments[assignmentIndex] = {
       ...assignment,
-      status: assignment.status === "submitted" ? "pending" : "submitted",
+      status: assignment.status === "pending" ? "submitted_on_time" : "pending",
     };
   }
 

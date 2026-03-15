@@ -136,6 +136,7 @@ export default function CoursesPage() {
             <CourseCard
               key={course.id}
               course={course}
+              semesterName={state.academicPlanning.semesters.find(s => s.id === course.semesterId)?.name}
               onEdit={handleEditCourse}
               onDelete={handleDeleteCourse}
             />

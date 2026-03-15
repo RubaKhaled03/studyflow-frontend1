@@ -107,7 +107,7 @@ export function AddSemesterDialog({ open, onOpenChange, onSave, initialData }: A
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="planned">Planned for Future</SelectItem>
-                <SelectItem value="in-progress">Currently In Progress</SelectItem>
+                <SelectItem value="current">Currently In Progress</SelectItem>
                 <SelectItem value="completed">Completed / Graded</SelectItem>
               </SelectContent>
             </Select>
