@@ -1,21 +1,13 @@
-export type PlannerSemesterStatus = 'planned' | 'in-progress' | 'completed';
-export type PlannerCourseStatus = 'planned' | 'in-progress' | 'completed';
-
-export interface PlannerCourse {
-  id: string;
-  semesterId: string;
-  title: string;
-  code?: string;
-  credits: number;
-  status: PlannerCourseStatus;
-  numericGrade?: number | null; // Only meaningful if status === 'completed', 0-100
-  notes?: string;
-}
+export type PlannerSemesterStatus = 'planned' | 'current' | 'completed';
 
 export interface PlannerSemester {
   id: string;
   name: string;
   status: PlannerSemesterStatus;
+  weeksCount: number;
+  academicYear?: string;
+  startDate?: string;
+  endDate?: string;
   notes?: string;
 }
 

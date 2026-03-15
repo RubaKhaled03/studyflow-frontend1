@@ -28,8 +28,6 @@ export function RegisterForm() {
     if (formData.password.length < 8) {
       newErrors.password = "Password must be at least 8 characters";
     }
-    if (!/[A-Z]/.test(formData.password))
-      newErrors.password = "Password must contain an uppercase letter";
     if (!/[!@#$%^&*]/.test(formData.password))
       newErrors.password = "Password must contain a special character";
     if (formData.password !== formData.confirmPassword) {
@@ -49,6 +47,19 @@ export function RegisterForm() {
 
     // Simulate registration - in production, this would call an API
     await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // CRITICAL: Ensure a clean state for the new student
+    const { AppStore } = await import("@/lib/store/app-store");
+    AppStore.clearAll();
+
+    // Persist the name for the setup/onboarding flow
+    AppStore.update(state => ({
+      ...state,
+      userProfile: {
+        ...state.userProfile,
+        name: formData.name
+      }
+    }));
 
     // Redirect to setup page for first-time users
     router.push("/setup");

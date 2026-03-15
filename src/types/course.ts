@@ -1,4 +1,7 @@
+import { ReminderConfig } from "./reminders";
+
 export type CourseStatus = "current" | "completed" | "planned";
+
 
 // Item types that can appear in a week
 export type WeekItemType =
@@ -38,6 +41,7 @@ export interface WeekItem {
   isAllDay?: boolean;
   completed?: boolean; // for tasks
   submitted?: boolean; // for assignments/submissions
+  reminderConfig?: ReminderConfig;
 }
 
 // Legacy types preserved for backward compatibility
@@ -67,6 +71,7 @@ export interface AcademicEvent {
   deadline?: string;
   location?: string;
   isAllDay?: boolean;
+  reminderConfig?: ReminderConfig;
 }
 
 export interface StudyTask {
@@ -74,6 +79,7 @@ export interface StudyTask {
   title: string;
   completed: boolean;
   dueDate?: string;
+  reminderConfig?: ReminderConfig;
 }
 
 export interface Assignment {
@@ -81,7 +87,8 @@ export interface Assignment {
   title: string;
   description?: string;
   dueDate: string;
-  status: "pending" | "submitted" | "graded";
+  status: "pending" | "submitted_early" | "submitted_on_time" | "submitted_late" | "graded";
+  reminderConfig?: ReminderConfig;
 }
 
 export interface Exam {
@@ -91,6 +98,7 @@ export interface Exam {
   time: string;
   duration: number;
   location?: string;
+  reminderConfig?: ReminderConfig;
 }
 
 export interface Resource {
@@ -113,10 +121,12 @@ export interface WeeklyPlan {
 
 export interface Course {
   id: string;
+  createdAt?: string; // ISO string
   title: string;
   instructor: string;
   credits: number;
-  semester: string;
+  semesterId?: string; // Link to PlannerSemester
+  useSemesterWeeks?: boolean; // Default true, inherits from semester
   status: CourseStatus;
   imageUrl: string;
   durationWeeks: number; // Required: duration in weeks
@@ -127,6 +137,8 @@ export interface Course {
   endDate?: string; // Optional: ISO date string
   progress?: number; // 0-100, only for current courses
   finalGrade?: string; // e.g., "92 (A)", only for completed courses
+  numericGrade?: number; // 0-100, used in Academic Planning calculations
+  academicPeriod?: string; // e.g. "2023 Fall", only for prior-completed courses
   weeklyPlan?: WeeklyPlan[]; // Weekly breakdown of course
   upcomingTasks?: StudyTask[]; // Upcoming tasks for this course
   assignments?: Assignment[]; // All assignments for this course

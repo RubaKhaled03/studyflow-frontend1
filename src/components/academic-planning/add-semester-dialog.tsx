@@ -24,15 +24,21 @@ function generateId() {
 export function AddSemesterDialog({ open, onOpenChange, onSave, initialData }: AddSemesterDialogProps) {
   const [name, setName] = useState("");
   const [status, setStatus] = useState<PlannerSemesterStatus>("planned");
+  const [weeksCount, setWeeksCount] = useState<number>(16);
+  const [academicYear, setAcademicYear] = useState("");
 
   useEffect(() => {
     if (open) {
       if (initialData) {
         setName(initialData.name);
         setStatus(initialData.status);
+        setWeeksCount(initialData.weeksCount || 16);
+        setAcademicYear(initialData.academicYear || "");
       } else {
         setName("");
         setStatus("planned");
+        setWeeksCount(16);
+        setAcademicYear("");
       }
     }
   }, [open, initialData]);
@@ -44,6 +50,8 @@ export function AddSemesterDialog({ open, onOpenChange, onSave, initialData }: A
       id: initialData ? initialData.id : generateId(),
       name,
       status,
+      weeksCount,
+      academicYear: academicYear || undefined,
     });
     onOpenChange(false);
   };
@@ -56,7 +64,7 @@ export function AddSemesterDialog({ open, onOpenChange, onSave, initialData }: A
         </DialogHeader>
         <div className="grid gap-5 py-4">
           <div className="grid gap-2">
-            <Label htmlFor="semester-name" className="text-muted-foreground font-semibold">Semester Name</Label>
+            <Label htmlFor="semester-name" className="text-muted-foreground font-semibold">Semester Name <span className="text-red-500">*</span></Label>
             <Input
               id="semester-name"
               placeholder="e.g. Fall 2024"
@@ -65,6 +73,32 @@ export function AddSemesterDialog({ open, onOpenChange, onSave, initialData }: A
               className="h-11 placeholder:text-muted-foreground/50"
             />
           </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="academic-year" className="text-muted-foreground font-semibold">Academic Year</Label>
+              <Input
+                id="academic-year"
+                placeholder="e.g. 2024/2025"
+                value={academicYear}
+                onChange={(e) => setAcademicYear(e.target.value)}
+                className="h-11 placeholder:text-muted-foreground/50"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="weeks-count" className="text-muted-foreground font-semibold">Num. of Weeks <span className="text-red-500">*</span></Label>
+              <Input
+                id="weeks-count"
+                type="number"
+                min="1"
+                max="52"
+                value={weeksCount}
+                onChange={(e) => setWeeksCount(parseInt(e.target.value) || 16)}
+                className="h-11 placeholder:text-muted-foreground/50"
+              />
+            </div>
+          </div>
+
           <div className="grid gap-2">
             <Label htmlFor="semester-status" className="text-muted-foreground font-semibold">Timeline Status</Label>
             <Select value={status} onValueChange={(val: PlannerSemesterStatus) => setStatus(val)}>

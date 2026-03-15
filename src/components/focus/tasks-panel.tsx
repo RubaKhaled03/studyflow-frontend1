@@ -118,7 +118,7 @@ export function TasksPanel({ className }: TasksPanelProps) {
         ) : (
           <button
             onClick={() => setIsAdding(true)}
-            className="flex w-full items-center gap-2 rounded-lg border border-dashed p-3 text-sm text-muted-foreground transition-colors hover:border-blue-500 hover:text-blue-500"
+            className="flex w-full items-center gap-2 rounded-lg border border-dashed p-3 text-sm text-muted-foreground transition-colors hover:border-secondary hover:text-secondary"
           >
             <Plus className="size-4" />
             Add here the task you will focus on

@@ -1,5 +1,6 @@
-import { PlannerSemester, PlannerCourse } from "@/types/academic-planning";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { PlannerSemester } from "@/types/academic-planning";
+import { Course } from "@/types/course";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MoreVertical, Plus, Edit2, Trash2, CalendarDays } from "lucide-react";
@@ -9,9 +10,9 @@ import { calculateCumulativeAverage } from "@/lib/academic-planning/utils";
 
 interface SemesterCardProps {
   semester: PlannerSemester;
-  courses: PlannerCourse[];
+  courses: Course[];
   onAddCourse: (semesterId: string) => void;
-  onEditCourse: (course: PlannerCourse) => void;
+  onEditCourse: (course: Course) => void;
   onDeleteCourse: (courseId: string) => void;
   onEditSemester: (semester: PlannerSemester) => void;
   onDeleteSemester: (semesterId: string) => void;
@@ -33,7 +34,7 @@ export function SemesterCard({
   const renderStatus = () => {
     switch (semester.status) {
       case "planned": return <Badge variant="outline" className="bg-muted/50 text-muted-foreground font-normal border-border/50 shadow-none">Planned</Badge>;
-      case "in-progress": return <Badge variant="secondary" className="bg-blue-500/10 text-blue-700 font-medium shadow-none">In Progress</Badge>;
+      case "current": return <Badge variant="secondary" className="bg-blue-500/10 text-blue-700 font-medium shadow-none">In Progress</Badge>;
       case "completed": return <Badge variant="default" className="bg-emerald-500/10 text-emerald-700 border-none hover:bg-emerald-500/20 font-medium shadow-none">Completed</Badge>;
     }
   }

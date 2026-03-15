@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useCallback, useSyncExternalStore } from "react";
-import { Settings2, RotateCcw } from "lucide-react";
+import { Settings2, RotateCcw ,X} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TimerDisplay } from "@/components/focus/timer-display";
 import { SessionTabs, type SessionType } from "@/components/focus/session-tabs";
@@ -326,12 +326,15 @@ export default function FocusPage() {
             <RotateCcw className="mr-2 size-4" />
             Restart session
           </Button>
+           <Link href="/dashboard">
+                        <X className="h-4 w-4" />
+                      </Link>
         </div>
       </header>
 
-      <div className="flex">
-        <main className="flex-1 px-6 py-8">
-          <div className="mx-auto max-w-2xl space-y-8">
+      <div className="flex flex-col lg:grid lg:grid-cols-3">
+        <main className="lg:col-span-2 px-4 py-6 md:px-6 md:py-8">
+          <div className="mx-auto max-w-2xl space-y-6 md:space-y-8">
             <ChallengeBar
               totalMinutes={totalChallengeMinutes}
               completedMinutes={totalFocusMinutes}
@@ -348,7 +351,7 @@ export default function FocusPage() {
               sessionCounts={sessionCounts}
             />
 
-            <div className="flex justify-center py-8">
+            <div className="flex justify-center py-6 md:py-8">
               <TimerDisplay
                 time={time}
                 level={getLevelName()}
@@ -356,7 +359,7 @@ export default function FocusPage() {
               />
             </div>
 
-            <div className="flex justify-center">
+            <div className="flex justify-center mb-6">
               {state === "running" ? (
                 <Button
                   size="lg"
@@ -379,7 +382,7 @@ export default function FocusPage() {
           </div>
         </main>
 
-        <aside className="w-80 border-l p-4">
+        <aside className="w-full lg:col-span-1 border-t lg:border-t-0 lg:border-l p-4 bg-muted/5 lg:bg-transparent">
           <TasksPanel />
         </aside>
       </div>

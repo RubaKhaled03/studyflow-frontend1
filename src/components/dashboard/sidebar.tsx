@@ -22,22 +22,29 @@ import {
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/courses", label: "Courses", icon: BookOpen },
-  {
+    {
     href: "/academic-planning",
     label: "Academic planning",
     icon: School,
   },
+  { href: "/courses", label: "Courses", icon: BookOpen },
+
   { href: "/tasks", label: "Tasks", icon: ListTodo },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
   { href: "/self-learning", label: "Self Learning", icon: Route },
-  // { href: "/dashboard/profile", label: "Profile", icon: User },
   { href: "/reflections", label: "Reflections", icon: Brain },
 ];
 
+import { UserAvatar } from "@/components/ui/user-avatar";
+import { useAppState } from "@/hooks/use-app-state";
+import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
+
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const { state } = useAppState();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+  const user = state.userProfile;
 
   const handleLogout = () => {
     localStorage.removeItem("studyflow_setup_complete");
@@ -47,7 +54,7 @@ export function DashboardSidebar() {
 
   return (
     <>
-      {/* Mobile Menu Button */}
+      {/* Mobile Menu Button ... existing code ... */}
       <button
         className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-card rounded-lg border  border-border shadow-sm"
         onClick={() => setMobileOpen(!mobileOpen)}
@@ -73,7 +80,7 @@ export function DashboardSidebar() {
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="p-4  border-border">
+          <div className="p-4 border-border">
             <Link href="/dashboard">
               <Image
                 src="/logo.png"
@@ -109,18 +116,22 @@ export function DashboardSidebar() {
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t border-border space-y-1">
+          <div className="p-4 border-t border-border space-y-2">
             <Link
-              href="/dashboard/settings"
-              className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              href="/settings"
+              className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors group"
             >
-              <Settings className="h-5 w-5" />
-              Settings
+              <UserAvatar profile={user} className="h-8 w-8 group-hover:ring-2 group-hover:ring-primary/20 transition-all" />
+              <div className="flex flex-col flex-1 overflow-hidden">
+                <span className="text-foreground truncate">{user.name || "Student"}</span>
+                <span className="text-[10px] text-muted-foreground truncate uppercase tracking-wider">{user.major || "Goal: Graduate"}</span>
+              </div>
+              <Settings className="h-4 w-4 opacity-50" />
             </Link>
             <Button
               variant="ghost"
-              className="w-full justify-start gap-3 px-4 py-3 h-auto text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
-              onClick={handleLogout}
+              className="w-full justify-start gap-3 px-4 py-3 h-auto text-sm font-medium text-muted-foreground hover:bg-muted hover:text-red-600 transition-colors"
+              onClick={() => setIsLogoutDialogOpen(true)}
             >
               <LogOut className="h-5 w-5" />
               Logout
@@ -128,6 +139,16 @@ export function DashboardSidebar() {
           </div>
         </div>
       </aside>
+
+      <ConfirmActionDialog
+        isOpen={isLogoutDialogOpen}
+        title="Sign Out"
+        description="Are you sure you want to sign out of StudyFlow?"
+        confirmText="Sign Out"
+        icon={<LogOut className="h-6 w-6" />}
+        onConfirm={handleLogout}
+        onCancel={() => setIsLogoutDialogOpen(false)}
+      />
     </>
   );
 }

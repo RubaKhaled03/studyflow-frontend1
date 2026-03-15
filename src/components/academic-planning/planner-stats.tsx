@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { GraduationCap, Percent, CalendarDays, CheckCircle2, Clock } from "lucide-react";
 
-interface AcademicOverviewCardsProps {
+interface AcademicPlannerStatsProps {
   cumulativeAverage: number | null;
   passedCredits: number;
   totalRequiredCredits: number;
@@ -11,24 +11,23 @@ interface AcademicOverviewCardsProps {
   estimatedSemestersLeft: number;
 }
 
-export function AcademicOverviewCards({
+export function AcademicPlannerStats({
   cumulativeAverage,
   passedCredits,
   totalRequiredCredits,
   inProgressCredits,
   plannedCredits,
   estimatedSemestersLeft
-}: AcademicOverviewCardsProps) {
+}: AcademicPlannerStatsProps) {
   
   const remainingCredits = Math.max(0, totalRequiredCredits - passedCredits);
   const progressPercentage = Math.min(100, Math.round((passedCredits / totalRequiredCredits) * 100));
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 grid-cols-1 md:grid-cols-3">
       
       {/* Average Card */}
       <Card className="border-none shadow-sm bg-card hover:shadow-md transition-shadow relative overflow-hidden group">
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-500 to-primary opacity-50 group-hover:opacity-100 transition-opacity"></div>
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-sm font-medium text-muted-foreground">Cumulative Average</CardTitle>
           <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
@@ -47,8 +46,8 @@ export function AcademicOverviewCards({
       </Card>
 
       {/* Degree Progress Card */}
-      <Card className="border-none shadow-sm md:col-span-2 lg:col-span-1 bg-card hover:shadow-md transition-shadow relative overflow-hidden group">
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500 to-emerald-400 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+      <Card className="border-none shadow-sm bg-card hover:shadow-md transition-shadow relative overflow-hidden group">
+
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-sm font-medium text-muted-foreground">Passed Credit Hours</CardTitle>
           <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
@@ -73,7 +72,6 @@ export function AcademicOverviewCards({
 
       {/* Remaining Estimate Card & Credits Info */}
       <Card className="border-none shadow-sm bg-card hover:shadow-md transition-shadow relative overflow-hidden group flex flex-col justify-between">
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-orange-400 to-amber-500 opacity-50 group-hover:opacity-100 transition-opacity"></div>
         <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle className="text-sm font-medium text-muted-foreground">Estimated Timeline</CardTitle>
           <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center">

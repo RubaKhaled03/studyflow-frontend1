@@ -1,16 +1,14 @@
 "use client";
 
-import { useState, useEffect, useSyncExternalStore } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
-  aggregateCalendarEvents,
   filterEvents,
   CalendarEvent,
   CalendarFilters,
 } from "@/lib/calendar-utils";
-import { getCourseById } from "@/lib/courses-storage";
-import { getCourseDetails } from "@/lib/mock-course-details";
-import { Course } from "@/types/course";
+import { useAppState } from "@/hooks/use-app-state";
+import { selectCalendarEvents } from "@/lib/store/app-selectors";
 import { CalendarHeader } from "@/components/calendar/calendar-header";
 import { MiniCalendar } from "@/components/calendar/mini-calendar";
 import { CalendarFilters as FilterComponent } from "@/components/calendar/calendar-filters";
@@ -23,29 +21,13 @@ import { AgendaView } from "@/components/calendar/agenda-view";
 import { EventDetailsModal } from "@/components/calendar/event-details-modal";
 import { Spinner } from "@/components/ui/spinner";
 
-function subscribe() {
-  return () => {};
-}
-
-function getServerSnapshot() {
-  return false;
-}
-
-function getClientSnapshot() {
-  return true;
-}
-
-function useHydrated() {
-  return useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
-}
-
 export default function CalendarPage() {
   const router = useRouter();
-  const mounted = useHydrated();
+  const { state, isLoaded } = useAppState();
 
+  const courses = state.courses;
+  
   // State
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<"month" | "week" | "day" | "agenda">(
@@ -65,52 +47,9 @@ export default function CalendarPage() {
     courses: [],
   });
 
-  // Load all courses
-  useEffect(() => {
-    if (!mounted) return;
-
-    const loadCourses = async () => {
-      try {
-        // Try to get from localStorage first
-        const allCourses: Course[] = [];
-
-        // Get common course IDs (from localStorage or mock)
-        const courseIds = ["1", "2", "3"];
-
-        courseIds.forEach((id) => {
-          let course = getCourseById(id);
-          if (!course) {
-            course = getCourseDetails(id);
-          }
-          if (course) {
-            allCourses.push(course);
-          }
-        });
-
-        setCourses(allCourses);
-        setIsLoading(false);
-      } catch (error) {
-        console.error("Error loading courses:", error);
-        setIsLoading(false);
-      }
-    };
-
-    let isMounted = true;
-    const timer = setTimeout(() => {
-      if (isMounted) {
-        loadCourses();
-      }
-    }, 0);
-
-    return () => {
-      isMounted = false;
-      clearTimeout(timer);
-    };
-  }, [mounted]);
-
-  // Get all events
-  const allEvents = aggregateCalendarEvents(courses);
-  const filteredEvents = filterEvents(allEvents, filters);
+  // Get all events using selector
+  const allEvents = useMemo(() => selectCalendarEvents(state), [state]);
+  const filteredEvents = useMemo(() => filterEvents(allEvents, filters), [allEvents, filters]);
 
   // Navigation handlers
   const handlePreviousMonth = () => {
@@ -146,16 +85,16 @@ export default function CalendarPage() {
     router.push(`/courses/${courseId}`);
   };
 
-  if (isLoading || !mounted) {
+  if (!isLoaded) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex h-[60vh] items-center justify-center">
         <Spinner />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
+    <div className="min-h-screen bg-transparent animate-in fade-in zoom-in-95 duration-500">
       {/* Header */}
       <CalendarHeader
         currentDate={currentDate}

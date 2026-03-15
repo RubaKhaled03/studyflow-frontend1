@@ -116,11 +116,17 @@ export function EventDetailsModal({
                     </p>
                   )}
                 </div>
-                {onOpenCourse && (
+                {(onOpenCourse || event.path) && (
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => onOpenCourse(event.courseId)}
+                    onClick={() => {
+                      if (event.path) {
+                        window.location.href = event.path;
+                      } else if (onOpenCourse) {
+                        onOpenCourse(event.courseId);
+                      }
+                    }}
                     className="gap-1"
                   >
                     <BookOpen className="h-3 w-3" />
@@ -206,13 +212,19 @@ export function EventDetailsModal({
 
             {/* Footer Actions */}
             <div className="flex gap-2">
-              {onOpenCourse && (
+              {(onOpenCourse || event.path) && (
                 <Button
-                  onClick={() => onOpenCourse(event.courseId)}
+                  onClick={() => {
+                    if (event.path) {
+                      window.location.href = event.path;
+                    } else if (onOpenCourse) {
+                      onOpenCourse(event.courseId);
+                    }
+                  }}
                   className="flex-1 gap-2"
                 >
                   <BookOpen className="h-4 w-4" />
-                  View Course
+                  View Item
                 </Button>
               )}
               <Button onClick={onClose} variant="outline" className="flex-1">

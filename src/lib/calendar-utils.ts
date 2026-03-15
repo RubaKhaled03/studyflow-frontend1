@@ -17,6 +17,7 @@ export interface CalendarEvent {
   location?: string;
   isAllDay?: boolean;
   completed?: boolean;
+  path?: string;
 }
 
 export interface CalendarFilters {
@@ -57,7 +58,7 @@ export function aggregateCalendarEvents(courses: Course[]): CalendarEvent[] {
         const dueDate = new Date(assignment.dueDate);
         const now = new Date();
         const status =
-          assignment.status === "submitted" || assignment.status === "graded"
+          assignment.status !== "pending"
             ? "completed"
             : dueDate < now
               ? "overdue"
@@ -117,7 +118,7 @@ export function aggregateCalendarEvents(courses: Course[]): CalendarEvent[] {
         const dueDate = new Date(assignment.dueDate);
         const now = new Date();
         const status =
-          assignment.status === "submitted" || assignment.status === "graded"
+          assignment.status !== "pending"
             ? "completed"
             : dueDate < now
               ? "overdue"

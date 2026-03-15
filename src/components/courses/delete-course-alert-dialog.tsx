@@ -32,7 +32,7 @@ export function DeleteCourseAlertDialog({
   return (
     <AlertDialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
       <AlertDialogContent>
-        <AlertDialogHeader className="flex flex-col ">
+        <AlertDialogHeader className="flex flex-col  ">
           <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
             <Trash2Icon />
           </AlertDialogMedia>

@@ -21,7 +21,7 @@ export function MiniCalendar({
   };
 
   const getFirstDayOfMonth = (date: Date) => {
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+    return (new Date(date.getFullYear(), date.getMonth(), 1).getDay() + 1) % 7;
   };
 
   const prevMonth = () => {
@@ -107,7 +107,7 @@ export function MiniCalendar({
 
       {/* Weekday headers */}
       <div className="grid grid-cols-7 gap-1 mb-2">
-        {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => (
+        {["Sa", "Su", "Mo", "Tu", "We", "Th", "Fr"].map((day) => (
           <div
             key={day}
             className="text-xs font-semibold text-slate-600 dark:text-slate-400 text-center"

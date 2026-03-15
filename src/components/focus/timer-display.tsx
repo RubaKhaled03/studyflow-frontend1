@@ -43,7 +43,7 @@ export function TimerDisplay({ time, level, progress, className }: TimerDisplayP
           strokeWidth="8"
           fill="none"
           strokeLinecap="round"
-          className="text-blue-500 transition-all duration-1000 ease-linear"
+          className="text-primary transition-all duration-1000 ease-linear"
           style={{
             strokeDasharray: circumference,
             strokeDashoffset: offset,
@@ -55,7 +55,7 @@ export function TimerDisplay({ time, level, progress, className }: TimerDisplayP
           cy={160 - radius}
           r="4"
           fill="currentColor"
-          className="text-blue-500"
+          className="text-primary"
           style={{
             transform: `rotate(${(progress / 100) * 360}deg)`,
             transformOrigin: "160px 160px",
@@ -65,12 +65,12 @@ export function TimerDisplay({ time, level, progress, className }: TimerDisplayP
 
       {/* Timer content */}
       <div className="absolute flex flex-col items-center justify-center">
-        <span className="text-7xl font-light tracking-tight text-blue-600">
+        <span className="text-7xl font-light tracking-tight text-muted-foreground">
           {formattedTime}
         </span>
         <div className="mt-4 text-center">
           <p className="text-sm text-muted-foreground">Level</p>
-          <p className="font-medium text-blue-600">{level}</p>
+          <p className="font-medium text-muted-foreground">{level}</p>
         </div>
       </div>
     </div>

@@ -1,84 +1,88 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ListTodo, Plus, ChevronRight, Clock } from "lucide-react";
+import { ListTodo, Plus, ArrowRight, AlertCircle, Circle, Timer, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { TaskItem, TaskStatus } from "@/types/tasks";
+import { isTaskOverdue, sortTasks } from "@/lib/tasks/utils";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
-const tasks = [
-  {
-    id: 1,
-    title: "Data Structures Project",
-    course: "Computer Science 301",
-    dueDate: "Today, 11:59 PM",
-    isUrgent: true,
-  },
-  {
-    id: 2,
-    title: "Read Chapter 4 & 5",
-    course: "Introduction to Psychology",
-    dueDate: "Tomorrow, 9:00 AM",
-    isUrgent: false,
-  },
-  {
-    id: 3,
-    title: "Calculus Worksheet 12",
-    course: "Mathematics 201",
-    dueDate: "Wednesday",
-    isUrgent: false,
-  },
-];
+const LS_KEY = "studyflow_tasks";
 
-export function HighPriorityTasks() {
+interface HighPriorityTasksProps {
+  tasks: TaskItem[];
+  onStatusChange?: (id: string, status: TaskStatus) => void;
+}
+
+export function HighPriorityTasks({ tasks, onStatusChange }: HighPriorityTasksProps) {
+  const renderStatusIcon = (task: TaskItem) => {
+    if (isTaskOverdue(task)) return <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />;
+    if (task.status === "in-progress") return <Timer className="w-4 h-4 text-blue-500 shrink-0" />;
+    return <Circle className="w-4 h-4 text-muted-foreground/40 shrink-0" />;
+  };
+
   return (
-    <Card className="flex flex-col border-none shadow-sm hover:shadow-md transition-shadow">
+    <Card className="flex flex-col border-none shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <ListTodo className="h-5 w-5 text-primary" />
+        <CardTitle className="text-lg font-semibold flex items-center gap-2 text-foreground">
+          <ListTodo className="h-5 w-5 text-orange-500" />
           High Priority Tasks
         </CardTitle>
-        <Button variant="outline" className="justify-center gap-2" asChild>
-          <Link href="/dashboard/tasks/new">
-            <Plus className="h-4 w-4" /> Quick Add Task
+        <Button variant="ghost" size="sm" asChild className="hidden sm:flex -mr-2 text-muted-foreground hover:text-primary transition-colors">
+          <Link href="/tasks">
+            View All <ArrowRight className="ml-1 w-4 h-4" />
           </Link>
         </Button>
       </CardHeader>
-      <CardContent className="flex-1 mt-4">
-        <div className="space-y-4">
-          {tasks.map((task) => (
-            <div
-              key={task.id}
-              className="group flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-lg border border-border/50 bg-card hover:bg-muted/50 transition-colors"
-            >
-              <div className="flex items-start gap-3">
-                <div
-                  className={`mt-1 h-2 w-2 rounded-full flex-shrink-0 ${
-                    task.isUrgent
-                      ? "bg-destructive animate-pulse"
-                      : "bg-primary"
-                  }`}
-                />
-                <div>
-                  <h4 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                    {task.title}
-                  </h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {task.course}
-                  </p>
+
+      <CardContent className="flex-1 flex flex-col gap-3 pt-2">
+        {tasks.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center text-center py-8 gap-3">
+            <CheckCircle2 className="w-8 h-8 text-emerald-500 opacity-50" />
+            <p className="text-sm text-muted-foreground">No urgent tasks right now. Nice work!</p>
+            <Button size="sm" variant="secondary" asChild className="rounded-full shadow-none">
+              <Link href="/tasks"><Plus className="w-3.5 h-3.5 mr-1.5" /> Add Task</Link>
+            </Button>
+          </div>
+        ) : (
+          <>
+            {tasks.map(task => (
+              <div key={task.id} className={cn(
+                "flex items-center gap-3 p-3 rounded-xl border transition-colors group/item",
+                isTaskOverdue(task)
+                  ? "border-red-200/60 bg-red-50/40 dark:bg-red-900/10 dark:border-red-800/40"
+                  : "border-border/50 bg-card hover:bg-muted/50"
+              )}>
+                {renderStatusIcon(task)}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">{task.title}</p>
+                  {task.dueDate && (
+                    <p className={cn("text-xs mt-0.5", isTaskOverdue(task) ? "text-red-600" : "text-muted-foreground")}>
+                      {isTaskOverdue(task) ? "⚠ Overdue · " : "Due "}
+                      {new Date(task.dueDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                    </p>
+                  )}
                 </div>
+                {onStatusChange && (
+                  <button
+                    onClick={() => onStatusChange(task.id, "done")}
+                    title="Mark as done"
+                    className="opacity-0 group-hover/item:opacity-100 transition-opacity text-muted-foreground hover:text-emerald-600 shrink-0"
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                  </button>
+                )}
               </div>
-              <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-background px-2.5 py-1 rounded-full border border-border shrink-0">
-                <Clock className="h-3 w-3" />
-                {task.dueDate}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="w-full flex flex-row-reverse">
-          <Button variant="link" className="mt-2  gap-2" asChild>
-            <Link href="/dashboard/tasks">
-              View All Tasks <ChevronRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
+            ))}
+
+            <Button variant="link" size="sm" asChild className="mt-1 ml-auto text-muted-foreground hover:text-primary self-end">
+              <Link href="/tasks">View all tasks <ArrowRight className="ml-1 w-3.5 h-3.5" /></Link>
+            </Button>
+          </>
+        )}
       </CardContent>
     </Card>
   );

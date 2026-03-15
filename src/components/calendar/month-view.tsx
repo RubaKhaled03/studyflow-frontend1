@@ -31,7 +31,7 @@ export function MonthView({
     currentDate.getMonth(),
     0,
   ).getDate();
-  const firstDayOfWeek = firstDay.getDay();
+  const firstDayOfWeek = (firstDay.getDay() + 1) % 7;
 
   const days = [];
 
@@ -72,7 +72,7 @@ export function MonthView({
   }
 
   const getEventsForDate = (date: Date) => {
-    const dateString = date.toISOString().split("T")[0];
+    const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     return events.filter((e) => e.date.split("T")[0] === dateString);
   };
 
@@ -85,7 +85,7 @@ export function MonthView({
     <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
       {/* Weekday headers */}
       <div className="grid grid-cols-7 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+        {["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"].map((day) => (
           <div
             key={day}
             className="px-2 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400"

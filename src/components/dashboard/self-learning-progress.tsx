@@ -9,9 +9,15 @@ import { Progress } from "@/components/ui/progress";
 import { Route, PlaySquare, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-export function SelfLearningProgress() {
-  const currentPlan = "Advanced Web Development";
-  const progressPercentage = 60;
+import { LearningPlan } from "@/types/self-learning";
+
+interface SelfLearningProgressProps {
+  plans: LearningPlan[];
+}
+
+export function SelfLearningProgress({ plans }: SelfLearningProgressProps) {
+  const activePlans = plans.filter(p => p.status === "active");
+  const currentPlan = activePlans.sort((a, b) => (b.progress || 0) - (a.progress || 0))[0];
 
   return (
     <Card className="flex flex-col h-full border-none shadow-sm hover:shadow-md transition-shadow">
@@ -22,32 +28,39 @@ export function SelfLearningProgress() {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col justify-between pt-4">
-        <div className="space-y-4">
-          <div className="p-4 rounded-xl border border-border/50 bg-gradient-to-br from-card to-muted/30">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <p className="text-xs font-medium text-primary mb-1 uppercase tracking-wider">Current Plan</p>
-                <h3 className="text-base font-semibold leading-tight">{currentPlan}</h3>
+        {currentPlan ? (
+          <div className="space-y-4">
+            <div className="p-4 rounded-xl border border-border/50 bg-gradient-to-br from-card to-muted/30">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <p className="text-xs font-medium text-primary mb-1 uppercase tracking-wider">Current Plan</p>
+                  <h3 className="text-base font-semibold leading-tight">{currentPlan.title}</h3>
+                </div>
+                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <PlaySquare className="h-4 w-4 text-primary" />
+                </div>
               </div>
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <PlaySquare className="h-4 w-4 text-primary" />
+              
+              <div className="space-y-1.5 mt-2">
+                <div className="flex justify-between text-xs font-semibold">
+                  <span>Course Progress</span>
+                  <span className="text-primary">{currentPlan.progress}%</span>
+                </div>
+                <Progress value={currentPlan.progress} className="h-2 rounded-full" />
               </div>
-            </div>
-            
-            <div className="space-y-1.5 mt-2">
-              <div className="flex justify-between text-xs font-semibold">
-                <span>Course Progress</span>
-                <span className="text-primary">{progressPercentage}%</span>
-              </div>
-              <Progress value={progressPercentage} className="h-2 rounded-full" />
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-center py-4 gap-2 border-dashed border-2 rounded-xl border-border/40">
+            <PlaySquare className="w-8 h-8 text-muted-foreground/30" />
+            <p className="text-xs text-muted-foreground">Start a self-learning plan to track your progress.</p>
+          </div>
+        )}
         
         <div className="mt-6">
           <Button variant="default" className="w-full gap-2 group" asChild>
-            <Link href="/dashboard/self-learning">
-              Continue Learning 
+            <Link href="/self-learning">
+              {currentPlan ? "Continue Learning" : "Explore Plans"}
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </Button>

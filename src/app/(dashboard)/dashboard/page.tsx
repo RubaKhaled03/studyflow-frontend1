@@ -1,3 +1,11 @@
+"use client";
+
+import { useAppState } from "@/hooks/use-app-state";
+import { 
+  selectDashboardStats, 
+  selectHighPriorityTasks, 
+  selectAcademicSummary 
+} from "@/lib/store/app-selectors";
 import { WelcomeSection } from "@/components/dashboard/welcome-section";
 import { QuickStats } from "@/components/dashboard/quick-stats";
 import { FocusModeCard } from "@/components/dashboard/focus-mode-card";
@@ -5,20 +13,48 @@ import { QuickActions } from "@/components/dashboard/quick-actions";
 import { SelfLearningProgress } from "@/components/dashboard/self-learning-progress";
 import { HighPriorityTasks } from "@/components/dashboard/high-priority-tasks";
 import { AcademicProgress } from "@/components/dashboard/academic-progress";
+import { Spinner } from "@/components/ui/spinner";
+
 export default function Dashboard() {
+  const { state, isLoaded } = useAppState();
+
+  if (!isLoaded) {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <Spinner />
+      </div>
+    );
+  }
+
+  const stats = selectDashboardStats(state);
+  const highPriorityTasks = selectHighPriorityTasks(state);
+  const academicSummary = selectAcademicSummary(state);
+
   return (
-    <div className="space-y-6 pb-8">
-      <WelcomeSection />
+    <div className="space-y-6 pb-8 animate-in fade-in zoom-in-95 duration-500">
+      <WelcomeSection userName={state.userProfile.name} />
+      
       {/* Top Row: Quick Stats */}
-      <QuickStats />
+      <QuickStats 
+        activeCourses={stats.activeCourses}
+        pendingTasks={stats.pendingTasks}
+        completedCredits={stats.completedCredits}
+        milestones={stats.milestones}
+      />
+
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 ">
         {/* Left Column (2/3 width on large screens) */}
         <div className="lg:col-span-2 space-y-6">
-          <HighPriorityTasks />
+          <HighPriorityTasks tasks={highPriorityTasks} />
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <AcademicProgress />
-            <SelfLearningProgress />
+            <AcademicProgress 
+              completionPercentage={academicSummary.completionPercentage}
+              passedCredits={academicSummary.passedCredits}
+              requiredCredits={academicSummary.requiredCredits}
+            />
+            <SelfLearningProgress plans={state.selfLearningPlans} />
           </div>
         </div>
 

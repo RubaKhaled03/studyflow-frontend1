@@ -50,9 +50,37 @@ export default function SetupPage() {
     // Simulate saving data
     await new Promise(resolve => setTimeout(resolve, 1000))
     
-    // Mark setup as complete
-    localStorage.setItem("studyflow_setup_complete", "true")
-    localStorage.setItem("studyflow_user_data", JSON.stringify(formData))
+    // Import store dynamically to avoid hydration issues if needed
+    const { AppStore } = await import("@/lib/store/app-store");
+    const { EMPTY_APP_STATE } = await import("@/types/app-state");
+    
+    // Merge only profile info into a fresh empty state
+    const currentState = AppStore.get();
+    const cleanState = { ...EMPTY_APP_STATE };
+    
+    AppStore.set({
+      ...cleanState,
+      onboardingCompleted: true,
+      userProfile: {
+        ...cleanState.userProfile,
+        name: currentState.userProfile.name, // Preserve name from registration
+        academicYear: formData.academicYear,
+        totalCreditHours: formData.totalCreditHours,
+        completedCreditHours: formData.completedCreditHours,
+        currentGPA: formData.currentGPA,
+        university: formData.university,
+        major: formData.major,
+        onboardingCompleted: true,
+        updatedAt: new Date().toISOString()
+      },
+      academicPlanning: {
+        ...cleanState.academicPlanning,
+        config: {
+          ...cleanState.academicPlanning.config,
+          totalRequiredCredits: parseInt(formData.totalCreditHours) || 144
+        }
+      }
+    });
     
     router.push("/dashboard")
   }

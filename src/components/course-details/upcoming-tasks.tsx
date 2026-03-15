@@ -34,7 +34,7 @@ export function UpcomingTasks({
       title: a.title,
       type: "assignment" as const,
       date: a.dueDate,
-      completed: a.status === "submitted" || a.status === "graded",
+      completed: ["submitted_early", "submitted_on_time", "submitted_late", "graded"].includes(a.status),
       priority: "normal" as const,
     })),
     ...exams.map((e) => ({
@@ -46,7 +46,7 @@ export function UpcomingTasks({
       priority: "urgent" as const,
     })),
   ]
-    .filter((item) => item.date) // Only items with dates
+    .filter((item) => item.date && !item.completed) // Only uncompleted items with dates
     .sort((a, b) => new Date(a.date!).getTime() - new Date(b.date!).getTime())
     .slice(0, 5); // Show top 5 upcoming
 

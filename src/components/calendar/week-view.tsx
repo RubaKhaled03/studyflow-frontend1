@@ -12,7 +12,7 @@ interface WeekViewProps {
 export function WeekView({ events, currentDate, onEventClick }: WeekViewProps) {
   // Get the start of the week (Saturday)
   const startOfWeek = new Date(currentDate);
-  const daysToSubtract = currentDate.getDay() % 7;
+  const daysToSubtract = (currentDate.getDay() + 1) % 7;
   startOfWeek.setDate(currentDate.getDate() - daysToSubtract);
 
   const weekDays = Array.from({ length: 7 }, (_, i) => {
@@ -24,7 +24,7 @@ export function WeekView({ events, currentDate, onEventClick }: WeekViewProps) {
   const hours = Array.from({ length: 24 }, (_, i) => i);
 
   const getEventsForDateAndTime = (date: Date, hour: number) => {
-    const dateString = date.toISOString().split("T")[0];
+    const dateString = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
     return events.filter((e) => {
       if (e.date.split("T")[0] !== dateString) return false;
       if (!e.time) return hour === 0; // All-day events at top
@@ -58,7 +58,7 @@ export function WeekView({ events, currentDate, onEventClick }: WeekViewProps) {
             )}
           >
             <div className="text-xs font-semibold text-slate-600 dark:text-slate-400">
-              {["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"][date.getDay()]}
+              {["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"][index]}
             </div>
             <div
               className={cn(
