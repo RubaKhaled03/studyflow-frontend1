@@ -1,36 +1,104 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
+  <img src="public/logo.png" alt="StudyFlow Logo" width="200" />
+  <h1>StudyFlow</h1>
+  <p><b>The Ultimate Modern Academic Engine for Students</b></p>
+  
+  [![Next.js](https://img.shields.io/badge/Next.js-16+-black?logo=next.js)](https://nextjs.org/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.0-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+  [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://reactjs.org/)
+</div>
 
-## Getting Started
+---
 
-First, run the development server:
+## 🌟 Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+**StudyFlow** is a comprehensive academic management platform designed to help students streamline their educational journey. From tracking semester plans and course progress to maintaining deep focus with a built-in Pomodoro engine, StudyFlow brings all your academic tools into one sleek, high-performance interface.
+
+## 🚀 Key Features
+
+### 📅 Academic Planning & Management
+- **Semester Roadmap**: Visualize your entire degree timeline and track required credits.
+- **Detailed Course Tracking**: Manage assignments, exams, and attendance for every course.
+- **Dynamic GPA Calculation**: (Planned) Keep track of your academic standing in real-time.
+
+### 🍅 Advanced Focus Mode
+- **Custom Pomodoro Engine**: Tailor focus and break sessions to your personal learning style.
+- **Daily Challenges**: Set time goals and track your focus progress with visual bars.
+- **Integrated Tasks**: Manage session-specific tasks without leaving the focus environment.
+
+### 🔍 Search & Discovery
+- **Global Search**: Instantly find any course, task, or exam with `Cmd/Ctrl+K`.
+- **Intelligent Categories**: Results are grouped logically for quick navigation.
+
+### 🔔 Smart Notifications
+- **Status Center**: Stay updated on upcoming deadlines and system notifications.
+- **Persistent State**: Never miss a beat with a centralized notification hub.
+
+## 🛠 Technical Stack
+
+- **Core**: Next.js 16 (App Router), React 19
+- **styling**: Tailwind CSS 4.0 (Modern utilities & performance)
+- **UI Components**: Shadcn UI & Radix UI (Accessible & professional)
+- **Icons**: Lucide React
+- **Theming**: Dark/Light mode support via `next-themes`
+- **State**: Centralized AppStore via React Context
+
+## 🏗 Application Architecture
+
+```mermaid
+graph TD
+    A[Root Layout] --> B[Language/Theme Providers]
+    B --> C[Dashboard Layout]
+    C --> D[Header / Sidebar]
+    D --> E[Global Search]
+    D --> F[Notification Center]
+    C --> G[Main Content Area]
+    G --> H[Dashboard View]
+    G --> I[Academic Planning]
+    G --> J[Focus Mode]
+    G --> K[Settings]
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 💻 Getting Started
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Prerequisites
+- Node.js 20+
+- npm / yarn / pnpm
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Installation
 
-## Learn More
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/studyflow.git
+   cd studyflow
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Run the development server**
+   ```bash
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **Build for production**
+   ```bash
+   npm run build
+   npm start
+   ```
 
-## Deploy on Vercel
+## 🎨 UI Design Philosophy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+StudyFlow utilizes a **premium, glassmorphic design** with:
+- **HSL-tailored colors**: Harmonious and soft palette for long study sessions.
+- **Micro-animations**: Smooth transitions and hover effects for a delightful UX.
+- **Mobile First**: Fully responsive layout optimized for tablets and smartphones.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+<div align="center">
+  <p>Built with ❤️ for students by <b>StudyFlow Team</b></p>
+</div>
