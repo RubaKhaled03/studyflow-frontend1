@@ -106,11 +106,11 @@ export default function CoursesPage() {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">  
+    <div className="space-y-6 pb-8 pt-4 md:pt-6 animate-in fade-in zoom-in-95 duration-500">  
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-4xl font-bold">My Courses</h1>
-          <p className="mt-2 text-muted-foreground">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">My Courses</h1>
+          <p className="mt-1 text-muted-foreground">
             Manage and track all your academic courses.
           </p>
         </div>

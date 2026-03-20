@@ -35,13 +35,13 @@ export function CalendarHeader({
   ] as const;
 
   return (
-    <div className="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 sticky top-15 z-20">
+    <div className="border-b border-border bg-background sticky top-15 z-20">
       <div className="px-4 py-4 sm:px-6">
         {/* Top Row: Title and Quick Actions */}
         <div className="flex items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-3">
-            <Calendar className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <Calendar className="h-6 w-6 text-primary" />
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
               Academic Calendar
             </h1>
           </div>
@@ -89,13 +89,13 @@ export function CalendarHeader({
             </Button>
 
             {/* Current Date Range */}
-            <div className="ml-4 text-sm font-semibold text-slate-700 dark:text-slate-300">
+            <div className="ml-4 text-sm font-semibold text-muted-foreground">
               {monthYear}
             </div>
           </div>
 
           {/* Right: View Options */}
-          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-lg">
+          <div className="flex items-center gap-1 bg-muted p-1 rounded-lg">
             {viewOptions.map((option) => (
               <Button
                 key={option.id}

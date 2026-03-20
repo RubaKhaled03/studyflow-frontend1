@@ -94,7 +94,7 @@ export default function CalendarPage() {
   }
 
   return (
-    <div className="min-h-screen bg-transparent animate-in fade-in zoom-in-95 duration-500">
+    <div className="space-y-6 pb-8 pt-4 md:pt-6 animate-in fade-in zoom-in-95 duration-500">
       {/* Header */}
       <CalendarHeader
         currentDate={currentDate}

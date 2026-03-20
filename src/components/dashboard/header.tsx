@@ -11,13 +11,20 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 import { useAppState } from "@/hooks/use-app-state";
 import { GlobalSearch } from "./global-search";
 
+import { useState, useEffect } from "react";
+
 /**
  * Dashboard Header
  */
 export function DashboardHeader() {
   const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const { state, isLoaded } = useAppState();
   const user = state.userProfile;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <header className="sticky top-0 z-30 bg-card/80 backdrop-blur-md border-b border-border">
@@ -34,17 +41,23 @@ export function DashboardHeader() {
         <div className="flex items-center gap-2">
 
           {/* Theme */}
-          <Button
-            variant="theme"
-            size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          >
-            {theme === "dark" ? (
-              <Sun className="h-5 w-5" />
-            ) : (
-              <Moon className="h-5 w-5" />
-            )}
-          </Button>
+          {mounted ? (
+            <Button
+              variant="theme"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
+              ) : (
+                <Moon className="h-5 w-5" />
+              )}
+            </Button>
+          ) : (
+            <Button variant="theme" size="icon">
+              <span className="h-5 w-5" />
+            </Button>
+          )}
           <NotificationCenter />
 
           {/* User avatar - Direct Link to Settings */}

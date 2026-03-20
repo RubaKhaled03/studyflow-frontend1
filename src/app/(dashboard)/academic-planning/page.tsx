@@ -187,12 +187,12 @@ export default function AcademicPlanningPage() { // Changed component name
   }
 
   return (
-<div className="space-y-6 pb-8 animate-in fade-in zoom-in-95 duration-500">
+<div className="space-y-6 pb-8 pt-4 md:pt-6 animate-in fade-in zoom-in-95 duration-500">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 bg-card p-6 md:p-8 rounded-2xl border shadow-sm">
-        <div className="space-y-2 max-w-2xl">
+        <div className="space-y-1 max-w-2xl">
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Academic Progress / Graduation Planner</h1>
-          <p className="text-muted-foreground text-lg">
+          <p className="mt-1 text-muted-foreground">
             Track your cumulative average, passing credit hours, and plan future semesters to stay on target for graduation.
           </p>
         </div>

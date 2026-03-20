@@ -14,7 +14,7 @@ export function SelfLearningHeader({ onNewPlan }: SelfLearningHeaderProps) {
           <Sparkles className="h-6 w-6 text-violet-500" />
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Self-Learning</h1>
         </div>
-        <p className="text-muted-foreground text-sm leading-relaxed">
+        <p className="mt-1 text-muted-foreground">
           Track your personal learning journey, build skills, and grow step by step.
         </p>
       </div>

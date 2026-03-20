@@ -95,7 +95,7 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="space-y-6 pb-8 animate-in fade-in zoom-in-95 duration-500">
+    <div className="space-y-6 pb-8 pt-4 md:pt-6 animate-in fade-in zoom-in-95 duration-500">
 
       <TasksHeader onAddTask={handleAddClick} />
 

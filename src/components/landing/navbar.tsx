@@ -9,10 +9,10 @@ import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-  { href: "#home", label: "Home" },
-  { href: "#features", label: "Features" },
-  { href: "#how-it-works", label: "How It Works" },
-  { href: "#testimonials", label: "Testimonials" },
+  { href: "/", label: "Home" },
+  { href: "/#features", label: "Features" },
+  { href: "/#how-it-works", label: "How It Works" },
+  { href: "/#testimonials", label: "Testimonials" },
 ];
 
 export function Navbar() {
