@@ -26,14 +26,8 @@ export function LoginForm() {
     // Simulate login - in production, this would call an API
     await new Promise(resolve => setTimeout(resolve, 1000))
     
-    // Check if user has completed setup (simulate with localStorage for demo)
-    const hasCompletedSetup = localStorage.getItem("studyflow_setup_complete")
-    
-    if (hasCompletedSetup) {
-      router.push("/dashboard")
-    } else {
-      router.push("/setup")
-    }
+    // Direct existing users to the dashboard
+    router.push("/dashboard")
   }
 
   return (
