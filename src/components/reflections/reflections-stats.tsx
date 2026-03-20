@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReflectionEntry } from "@/types/reflections";
 import { getMoodInfo, isDateInThisWeek } from "@/lib/reflections/utils";
 import { LineChart, BookOpen, Flame, SmilePlus, Smile, Meh, Frown, Coffee, CloudRain } from "lucide-react";
@@ -33,59 +33,72 @@ export function ReflectionsStats({ reflections }: ReflectionsStatsProps) {
   return (
     <div className="grid gap-4 md:grid-cols-3">
       {/* Total Reflections */}
-      <Card className="border-none shadow-sm hover:shadow-md transition-shadow overflow-hidden relative group bg-card">
-        <CardContent className="flex items-center gap-3 pt-5">
-          <div className="p-2.5 rounded-xl shrink-0 bg-blue-50 dark:bg-blue-900/20">
-            <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-500" />
+      <Card className="border shadow-sm bg-card hover:shadow-md transition-shadow">
+        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+          <CardTitle className="text-sm font-medium text-muted-foreground">Total Reflections</CardTitle>
+          <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
+            <BookOpen className="h-4 w-4 text-blue-600" />
           </div>
-          <div>
-            <p className="text-2xl font-bold text-foreground tabular-nums">{totalCount}</p>
-            <p className="text-xs text-muted-foreground font-medium">Total Reflections</p>
+        </CardHeader>
+        <CardContent>
+          <div className="text-3xl font-bold tracking-tight text-foreground">
+            {totalCount}
           </div>
+          <p className="text-xs text-muted-foreground mt-1">
+             Journaling entries overall
+          </p>
         </CardContent>
       </Card>
 
       {/* This Week */}
-      <Card className="border-none shadow-sm hover:shadow-md transition-shadow overflow-hidden relative group bg-card">
-        <CardContent className="flex items-center gap-3 pt-5">
-          <div className="p-2.5 rounded-xl shrink-0 bg-orange-50 dark:bg-orange-900/20">
-            <Flame className="w-5 h-5 text-orange-600 dark:text-orange-500" />
+      <Card className="border shadow-sm bg-card hover:shadow-md transition-shadow">
+        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+          <CardTitle className="text-sm font-medium text-muted-foreground">This Week</CardTitle>
+          <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center">
+            <Flame className="h-4 w-4 text-orange-600" />
           </div>
-          <div>
-            <p className="text-2xl font-bold text-foreground tabular-nums">{thisWeekCount}</p>
-            <p className="text-xs text-muted-foreground font-medium">This Week</p>
+        </CardHeader>
+        <CardContent>
+          <div className="text-3xl font-bold tracking-tight text-foreground">
+            {thisWeekCount}
           </div>
+          <p className="text-xs text-muted-foreground mt-1">
+             Entries recorded this week
+          </p>
         </CardContent>
       </Card>
 
       {/* Latest Mood */}
-      <Card className="border-none shadow-sm hover:shadow-md transition-shadow overflow-hidden relative group bg-card">
-        <CardContent className="flex items-center gap-3 pt-5">
-          <div className="p-2.5 rounded-xl shrink-0 bg-emerald-50 dark:bg-emerald-900/20">
-            <LineChart className="w-5 h-5 text-emerald-600 dark:text-emerald-500" />
+      <Card className="border shadow-sm bg-card hover:shadow-md transition-shadow">
+        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+          <CardTitle className="text-sm font-medium text-muted-foreground">Latest Mood</CardTitle>
+          <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
+            <LineChart className="h-4 w-4 text-emerald-600" />
           </div>
-          <div className="flex-1">
-            {latestReflection ? (
-               <div className="flex items-center justify-between">
+        </CardHeader>
+        <CardContent>
+          {latestReflection ? (
+             <div className="flex items-center gap-3 mt-1">
+                 <div className={`p-2 rounded-full border ${latestMoodInfo.colorClass}`}>
+                    {renderMoodIcon(latestMoodInfo.icon, "w-6 h-6")}
+                 </div>
                  <div>
-                    <div className="text-lg font-bold tracking-tight text-foreground capitalize leading-tight">
+                    <div className="text-lg font-bold tracking-tight text-foreground capitalize">
                         {latestMoodInfo.label}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-0.5 truncate max-w-[100px]">
+                    <p className="text-[11px] text-muted-foreground truncate opacity-80">
                         {new Date(latestReflection.date).toLocaleDateString()}
                     </p>
                  </div>
-                 <div className={`p-1.5 rounded-full border ${latestMoodInfo.colorClass}`}>
-                    {renderMoodIcon(latestMoodInfo.icon, "w-5 h-5")}
-                 </div>
-               </div>
-            ) : (
-               <div>
-                 <p className="text-2xl font-bold text-foreground opacity-50 tabular-nums">--</p>
-                 <p className="text-xs text-muted-foreground font-medium">No Mood Yet</p>
-               </div>
-            )}
-          </div>
+             </div>
+          ) : (
+            <div className="mt-1">
+              <div className="text-3xl font-bold tracking-tight text-foreground opacity-50">
+                 --
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">No entries yet</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

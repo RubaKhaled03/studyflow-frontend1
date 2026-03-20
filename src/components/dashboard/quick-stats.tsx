@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ListTodo, BookOpen, Flame, CheckCircle2 } from "lucide-react";
 
 interface QuickStatsProps {
@@ -17,31 +17,35 @@ export function QuickStats({
   const stats = [
     {
       title: "Active Tasks",
+      subtitle: "Pending to do",
       value: pendingTasks,
       icon: ListTodo,
-      textColor: "text-blue-600 dark:text-blue-500",
-      bg: "bg-blue-50 dark:bg-blue-900/20",
+      color: "text-blue-600",
+      bg: "bg-blue-500/10",
     },
     {
       title: "Current Courses",
+      subtitle: "Enrolled this term",
       value: activeCourses,
       icon: BookOpen,
-      textColor: "text-violet-600 dark:text-violet-500",
-      bg: "bg-violet-50 dark:bg-violet-900/20",
+      color: "text-violet-600",
+      bg: "bg-violet-500/10",
     },
     {
       title: "Credits Passed",
+      subtitle: "Academic progress",
       value: completedCredits,
       icon: Flame,
-      textColor: "text-orange-600 dark:text-orange-500",
-      bg: "bg-orange-50 dark:bg-orange-900/20",
+      color: "text-orange-600",
+      bg: "bg-orange-500/10",
     },
     {
       title: "Milestones Done",
+      subtitle: "Completed goals",
       value: milestones,
       icon: CheckCircle2,
-      textColor: "text-emerald-600 dark:text-emerald-500",
-      bg: "bg-emerald-50 dark:bg-emerald-900/20",
+      color: "text-emerald-600",
+      bg: "bg-emerald-500/10",
     },
   ];
 
@@ -50,16 +54,17 @@ export function QuickStats({
       {stats.map((stat) => (
         <Card
           key={stat.title}
-          className="border-none shadow-sm hover:shadow-md transition-shadow overflow-hidden relative group bg-card"
+          className="border shadow-sm bg-card hover:shadow-md transition-shadow"
         >
-          <CardContent className="flex items-center gap-3 pt-5">
-            <div className={`p-2.5 rounded-xl shrink-0 ${stat.bg}`}>
-              <stat.icon className={`w-5 h-5 ${stat.textColor}`} />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-muted-foreground">{stat.title}</CardTitle>
+            <div className={`w-8 h-8 rounded-full ${stat.bg} flex items-center justify-center`}>
+              <stat.icon className={`h-4 w-4 ${stat.color}`} />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground tabular-nums">{stat.value}</p>
-              <p className="text-xs text-muted-foreground font-medium">{stat.title}</p>
-            </div>
+          </CardHeader>
+          <CardContent>
+             <div className="text-3xl font-bold tracking-tight text-foreground">{stat.value}</div>
+             <p className="text-xs text-muted-foreground mt-1">{stat.subtitle}</p>
           </CardContent>
         </Card>
       ))}

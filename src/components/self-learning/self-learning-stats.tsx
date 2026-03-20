@@ -1,31 +1,31 @@
 "use client";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { type SelfLearningStats as StatsType } from "@/types/self-learning";
-import { BookOpen, Zap, CheckCircle2, PauseCircle, CalendarCheck } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { BookOpen, Zap, CheckCircle2, CalendarCheck } from "lucide-react";
 
 interface StatsProps { stats: StatsType; }
 
-const CARDS = [
-  { key: "total",              label: "Total Plans",         icon: BookOpen,      gradient: "from-violet-500 to-purple-600",  bg: "bg-violet-50 dark:bg-violet-900/20" },
-  { key: "active",             label: "Active",              icon: Zap,           gradient: "from-blue-500 to-cyan-500",      bg: "bg-blue-50 dark:bg-blue-900/20" },
-  { key: "completed",          label: "Completed",           icon: CheckCircle2,  gradient: "from-emerald-500 to-green-600",  bg: "bg-emerald-50 dark:bg-emerald-900/20" },
-  { key: "upcomingMilestones", label: "Upcoming Milestones", icon: CalendarCheck, gradient: "from-amber-500 to-orange-500",   bg: "bg-amber-50 dark:bg-amber-900/20" },
-] as const;
-
 export function SelfLearningStats({ stats }: StatsProps) {
+  const cards = [
+    { key: "total", title: "Total Plans", subtitle: "All learning plans created", icon: BookOpen, color: "text-violet-600", bg: "bg-violet-500/10" },
+    { key: "active", title: "Active", subtitle: "Currently in progress", icon: Zap, color: "text-blue-600", bg: "bg-blue-500/10" },
+    { key: "completed", title: "Completed", subtitle: "Fully finished plans", icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-500/10" },
+    { key: "upcomingMilestones", title: "Upcoming Milestones", subtitle: "Pending goals to achieve", icon: CalendarCheck, color: "text-orange-600", bg: "bg-orange-500/10" },
+  ] as const;
+
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {CARDS.map(({ key, label, icon: Icon, gradient, bg }) => (
-        <Card key={key} className="border-none shadow-sm hover:shadow-md transition-shadow overflow-hidden relative group">
-          <CardContent className="flex items-center gap-3 pt-5">
-            <div className={cn("p-2.5 rounded-xl shrink-0", bg)}>
-              <Icon className={cn("w-5 h-5", gradient.split(' ')[0].replace('from-', 'text-'))} />
+      {cards.map(({ key, title, subtitle, icon: Icon, color, bg }) => (
+        <Card key={key} className="border shadow-sm bg-card hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+            <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+            <div className={`w-8 h-8 rounded-full ${bg} flex items-center justify-center`}>
+              <Icon className={`h-4 w-4 ${color}`} />
             </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground tabular-nums">{stats[key as keyof StatsType]}</p>
-              <p className="text-xs text-muted-foreground font-medium">{label}</p>
-            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold tracking-tight text-foreground">{stats[key as keyof StatsType]}</div>
+            <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>
           </CardContent>
         </Card>
       ))}
