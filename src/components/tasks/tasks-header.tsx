@@ -9,7 +9,7 @@ export function TasksHeader({ onAddTask }: TasksHeaderProps) {
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 bg-card p-6 md:p-8 rounded-2xl border shadow-sm w-full">
       <div className="space-y-1 max-w-2xl">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Unified Tasks</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Tasks</h1>
         <p className="mt-1 text-muted-foreground">
           Manage absolutely everything you need to do across courses, deadlines, and personal study plans.
         </p>

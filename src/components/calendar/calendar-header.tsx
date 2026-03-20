@@ -36,31 +36,22 @@ export function CalendarHeader({
 
   return (
     <div className="border-b border-border bg-background sticky top-15 z-20">
-      <div className="px-4 py-4 sm:px-6">
-        {/* Top Row: Title and Quick Actions */}
-        <div className="flex items-center justify-between gap-4 mb-4">
-          <div className="flex items-center gap-3">
-            <Calendar className="h-6 w-6 text-primary" />
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              Academic Calendar
-            </h1>
+         <div className="flex  flex-col md:flex-row justify-between items-start md:items-end gap-6 bg-card p-6 md:p-8 rounded-2xl border shadow-sm w-full mb-5">
+            <div className="space-y-1 max-w-2xl">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">Academic Calendar</h1>
+              <p className="mt-1 text-muted-foreground">
+                Manage and track all your academic courses.
+              </p>
+            </div>
+            <div className="flex w-full md:w-auto shrink-0">
+              <Button onClick={onAddEvent} className="w-full sm:w-auto shadow-sm" size="lg">
+                <Plus className="mr-2 h-5 w-5" />
+                Add Event
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={onAddEvent}
-              className="gap-2 hidden sm:flex"
-            >
-              <Plus className="h-4 w-4" />
-              Add Event
-            </Button>
-            {/* Search is optional for this version */}
-          </div>
-        </div>
-
         {/* Bottom Row: Navigation and View Options */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">
           {/* Left: Navigation */}
           <div className="flex items-center gap-3">
             <Button
@@ -109,7 +100,6 @@ export function CalendarHeader({
             ))}
           </div>
         </div>
-      </div>
     </div>
   );
 }

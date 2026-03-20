@@ -43,8 +43,8 @@ export function HighPriorityTasks({ tasks, onStatusChange }: HighPriorityTasksPr
           <div className="flex-1 flex flex-col items-center justify-center text-center py-8 gap-3">
             <CheckCircle2 className="w-8 h-8 text-emerald-500 opacity-50" />
             <p className="text-sm text-muted-foreground">No urgent tasks right now. Nice work!</p>
-            <Button size="sm" variant="secondary" asChild className="rounded-full shadow-none">
-              <Link href="/tasks"><Plus className="w-3.5 h-3.5 mr-1.5" /> Add Task</Link>
+            <Button size="sm" variant="default" asChild className="rounded-full shadow-none">
+              <Link href="/tasks"><Plus className="w-3.5 h-3.5" /> Add Task</Link>
             </Button>
           </div>
         ) : (
