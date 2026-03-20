@@ -106,23 +106,21 @@ export default function CoursesPage() {
   }
 
   return (
-    <div className="space-y-6 pb-8 pt-4 md:pt-6 animate-in fade-in zoom-in-95 duration-500">  
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">My Courses</h1>
-          <p className="mt-1 text-muted-foreground">
-            Manage and track all your academic courses.
-          </p>
-        </div>
-        <Button
-          onClick={handleAddCourse}
-          size="lg"
-          className="bg-primary hover:bg-secondary"
-        >
-          <Plus className="mr-2 h-5 w-5" />
-          Add Course
-        </Button>
-      </div>
+<div className="space-y-6 pb-8 animate-in fade-in zoom-in-95 duration-500">      
+       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 bg-card p-6 md:p-8 rounded-2xl border shadow-sm w-full">
+            <div className="space-y-1 max-w-2xl">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">My Courses</h1>
+              <p className="mt-1 text-muted-foreground">
+                Manage and track all your academic courses.
+              </p>
+            </div>
+            <div className="flex w-full md:w-auto shrink-0">
+              <Button onClick={handleAddCourse} className="w-full sm:w-auto shadow-sm" size="lg">
+                <Plus className="mr-2 h-5 w-5" />
+                Add Course
+              </Button>
+            </div>
+          </div>
       <div className="border-b">
         <CoursesTabs
           activeTab={activeTab}

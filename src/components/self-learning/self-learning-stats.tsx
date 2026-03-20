@@ -18,7 +18,6 @@ export function SelfLearningStats({ stats }: StatsProps) {
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {CARDS.map(({ key, label, icon: Icon, gradient, bg }) => (
         <Card key={key} className="border-none shadow-sm hover:shadow-md transition-shadow overflow-hidden relative group">
-          <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${gradient} opacity-60 group-hover:opacity-100 transition-opacity`} />
           <CardContent className="flex items-center gap-3 pt-5">
             <div className={cn("p-2.5 rounded-xl shrink-0", bg)}>
               <Icon className={cn("w-5 h-5", gradient.split(' ')[0].replace('from-', 'text-'))} />

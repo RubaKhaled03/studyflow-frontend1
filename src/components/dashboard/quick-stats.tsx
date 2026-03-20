@@ -17,31 +17,31 @@ export function QuickStats({
   const stats = [
     {
       title: "Active Tasks",
-      value: `${pendingTasks} Tasks`,
+      value: pendingTasks,
       icon: ListTodo,
-      color: "text-blue-500",
-      bg: "bg-blue-500/10",
+      textColor: "text-blue-600 dark:text-blue-500",
+      bg: "bg-blue-50 dark:bg-blue-900/20",
     },
     {
       title: "Current Courses",
-      value: `${activeCourses} Courses`,
+      value: activeCourses,
       icon: BookOpen,
-      color: "text-purple-500",
-      bg: "bg-purple-500/10",
+      textColor: "text-violet-600 dark:text-violet-500",
+      bg: "bg-violet-50 dark:bg-violet-900/20",
     },
     {
       title: "Credits Passed",
-      value: `${completedCredits} Hrs`,
+      value: completedCredits,
       icon: Flame,
-      color: "text-orange-500",
-      bg: "bg-orange-500/10",
+      textColor: "text-orange-600 dark:text-orange-500",
+      bg: "bg-orange-50 dark:bg-orange-900/20",
     },
     {
-      title: "Milestones",
-      value: `${milestones} Done`,
+      title: "Milestones Done",
+      value: milestones,
       icon: CheckCircle2,
-      color: "text-green-500",
-      bg: "bg-green-500/10",
+      textColor: "text-emerald-600 dark:text-emerald-500",
+      bg: "bg-emerald-50 dark:bg-emerald-900/20",
     },
   ];
 
@@ -50,19 +50,15 @@ export function QuickStats({
       {stats.map((stat) => (
         <Card
           key={stat.title}
-          className="hover:shadow-md transition-shadow duration-200 border-none bg-card/50 backdrop-blur-sm shadow-sm"
+          className="border-none shadow-sm hover:shadow-md transition-shadow overflow-hidden relative group bg-card"
         >
-          <CardContent className="p-6 flex items-center gap-4">
-            <div className={`p-3 rounded-xl ${stat.bg}`}>
-              <stat.icon className={`h-6 w-6 ${stat.color}`} />
+          <CardContent className="flex items-center gap-3 pt-5">
+            <div className={`p-2.5 rounded-xl shrink-0 ${stat.bg}`}>
+              <stat.icon className={`w-5 h-5 ${stat.textColor}`} />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground mb-1">
-                {stat.title}
-              </p>
-              <h3 className="text-2xl font-bold text-foreground">
-                {stat.value}
-              </h3>
+              <p className="text-2xl font-bold text-foreground tabular-nums">{stat.value}</p>
+              <p className="text-xs text-muted-foreground font-medium">{stat.title}</p>
             </div>
           </CardContent>
         </Card>
