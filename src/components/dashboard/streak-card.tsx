@@ -6,9 +6,10 @@ import { useMemo } from "react";
 
 interface StreakCardProps {
   count: number;
+  longestCount?: number;
 }
 
-export function StreakCard({ count }: StreakCardProps) {
+export function StreakCard({ count, longestCount }: StreakCardProps) {
   const isHighStreak = count >= 3;
   const isEpicStreak = count >= 7;
 
@@ -36,7 +37,7 @@ export function StreakCard({ count }: StreakCardProps) {
   }, [isHighStreak]);
 
   return (
-    <Card className={`${gradientClass} transition-all duration-500 hover:scale-[1.02]`}>
+    <Card className={`${gradientClass} transition-all duration-500`}>
       <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
         <CardTitle className={`text-sm font-medium ${isHighStreak ? "text-white/90" : "text-muted-foreground"}`}>
           Daily Streak
@@ -46,9 +47,16 @@ export function StreakCard({ count }: StreakCardProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex items-baseline gap-2">
-          <div className="text-4xl font-black tracking-tight">{count}</div>
-          <div className={`text-sm font-bold ${isHighStreak ? "text-white/80" : "text-muted-foreground"}`}>Days</div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-baseline gap-2">
+            <div className="text-4xl font-black tracking-tight">{count}</div>
+            <div className={`text-sm font-bold ${isHighStreak ? "text-white/80" : "text-muted-foreground"}`}>Days</div>
+          </div>
+          {longestCount !== undefined && longestCount > 0 && (
+            <div className={`text-[10px] font-bold px-2 py-1 rounded-full ${isHighStreak ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}>
+              BEST: {longestCount}
+            </div>
+          )}
         </div>
         <p className={`text-xs mt-2 font-medium ${isHighStreak ? "text-white/80" : "text-muted-foreground"}`}>
           {motivationalMessage}

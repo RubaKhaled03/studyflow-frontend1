@@ -17,7 +17,13 @@ import { AcademicProgress } from "@/components/dashboard/academic-progress";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function Dashboard() {
-  const { state, isLoaded } = useAppState();
+  const { state, isLoaded, updateStreak } = useAppState();
+
+  useEffect(() => {
+    if (isLoaded) {
+      updateStreak();
+    }
+  }, [isLoaded, updateStreak]);
 
   if (!isLoaded) {
     return (
@@ -41,7 +47,8 @@ export default function Dashboard() {
         pendingTasks={stats.pendingTasks}
         completedCredits={stats.completedCredits}
         milestones={stats.milestones}
-        streakCount={state.streak.currentCount}
+        streakCount={state.streak?.currentCount || 0}
+        longestStreak={state.streak?.longestCount || 0}
       />
 
       {/* Main Content Grid */}

@@ -1,10 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AppState, EMPTY_APP_STATE } from "@/types/app-state";
 import { AppStore } from "@/lib/store/app-store";
 import { PlannerSemester } from "@/types/academic-planning";
 import { Course } from "@/types/course";
+import { TaskItem } from "@/types/tasks";
+import { LearningPlan } from "@/types/self-learning";
+import { ReflectionEntry } from "@/types/reflections";
 
 /**
  * Hook to consume and update the centralized AppState.
@@ -43,31 +46,28 @@ export function useAppState() {
    * Updates state and persists to storage.
    * Listeners (including this one) will be notified automatically.
    */
-  const updateState = (update: Partial<AppState> | ((s: AppState) => AppState)) => {
+  const updateState = useCallback((update: Partial<AppState> | ((s: AppState) => AppState)) => {
     AppStore.update(update);
-  };
+  }, []);
 
   /**
    * Resets the entire app to empty
    */
-  const resetApp = () => {
+  const resetApp = useCallback(() => {
     AppStore.reset();
     setState(EMPTY_APP_STATE);
-  };
+  }, []);
 
-  /**
-   * Loads the demo data seeder
-   */
-  const loadDemoData = async () => {
+  const loadDemoData = useCallback(async () => {
     const { DEMO_APP_STATE } = await import("@/lib/store/demo-seed");
     AppStore.set(DEMO_APP_STATE);
     setState(DEMO_APP_STATE);
-  };
+  }, []);
 
   /**
    * Semesters
    */
-  const addSemester = (semester: PlannerSemester) => {
+  const addSemester = useCallback((semester: PlannerSemester) => {
     updateState(prev => {
       const newState = {
         ...prev,
@@ -78,9 +78,9 @@ export function useAppState() {
       };
       return keepStreakAlive(newState);
     });
-  };
+  }, []);
 
-  const updateSemester = (semester: PlannerSemester) => {
+  const updateSemester = useCallback((semester: PlannerSemester) => {
     updateState(prev => {
       const newState = {
         ...prev,
@@ -91,9 +91,9 @@ export function useAppState() {
       };
       return keepStreakAlive(newState);
     });
-  };
+  }, []);
 
-  const deleteSemester = (id: string) => {
+  const deleteSemester = useCallback((id: string) => {
     updateState(prev => {
       const newState = {
         ...prev,
@@ -104,12 +104,12 @@ export function useAppState() {
       };
       return keepStreakAlive(newState);
     });
-  };
+  }, []);
 
   /**
    * Courses
    */
-  const addCourse = (course: Course) => {
+  const addCourse = useCallback((course: Course) => {
     updateState(prev => {
       const newState = {
         ...prev,
@@ -135,9 +135,9 @@ export function useAppState() {
       const newStateWithSync = syncSemesterStatus(newState, course.semesterId);
       return keepStreakAlive(newStateWithSync);
     });
-  };
+  }, []);
 
-  const updateCourse = (course: Course) => {
+  const updateCourse = useCallback((course: Course) => {
     updateState(prev => {
       const newState = {
         ...prev,
@@ -152,9 +152,9 @@ export function useAppState() {
       }
       return keepStreakAlive(finalState);
     });
-  };
+  }, []);
 
-  const deleteCourse = (id: string) => {
+  const deleteCourse = useCallback((id: string) => {
     updateState(prev => {
       const course = prev.courses.find(c => c.id === id);
       const newState = {
@@ -164,7 +164,56 @@ export function useAppState() {
       const finalState = syncSemesterStatus(newState, course?.semesterId);
       return keepStreakAlive(finalState);
     });
-  };
+  }, []);
+
+  /**
+   * Tasks
+   */
+  const addTask = useCallback((task: TaskItem) => {
+    updateState(prev => keepStreakAlive({ ...prev, tasks: [...prev.tasks, task] }));
+  }, []);
+
+  const updateTask = useCallback((task: TaskItem) => {
+    updateState(prev => keepStreakAlive({
+      ...prev,
+      tasks: prev.tasks.map(t => t.id === task.id ? task : t)
+    }));
+  }, []);
+
+  const deleteTask = useCallback((id: string) => {
+    updateState(prev => keepStreakAlive({
+      ...prev,
+      tasks: prev.tasks.filter(t => t.id !== id)
+    }));
+  }, []);
+
+  /**
+   * Learning Plans
+   */
+  const addLearningPlan = useCallback((plan: LearningPlan) => {
+    updateState(prev => keepStreakAlive({ ...prev, selfLearningPlans: [...prev.selfLearningPlans, plan] }));
+  }, []);
+
+  const updateLearningPlan = useCallback((plan: LearningPlan) => {
+    updateState(prev => keepStreakAlive({
+      ...prev,
+      selfLearningPlans: prev.selfLearningPlans.map(p => p.id === plan.id ? plan : p)
+    }));
+  }, []);
+
+  const deleteLearningPlan = useCallback((id: string) => {
+    updateState(prev => keepStreakAlive({
+      ...prev,
+      selfLearningPlans: prev.selfLearningPlans.filter(p => p.id !== id)
+    }));
+  }, []);
+
+  /**
+   * Reflections
+   */
+  const addReflection = useCallback((reflection: ReflectionEntry) => {
+    updateState(prev => keepStreakAlive({ ...prev, reflections: [reflection, ...prev.reflections] }));
+  }, []);
 
   /**
    * Helper to sync semester status based on courses
@@ -209,37 +258,50 @@ export function useAppState() {
   /**
    * Streak Management
    */
-  const updateStreak = () => {
+  const updateStreak = useCallback(() => {
     updateState(prev => keepStreakAlive(prev));
-  };
+  }, []);
 
   /**
    * Helper to keep streak alive
    */
   const keepStreakAlive = (state: AppState): AppState => {
-    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    // Normalize to YYYY-MM-DD in local time
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    
     const lastActive = state.streak?.lastActiveDate || "";
+    const activeDays = state.streak?.activeDays || [];
     
-    // If already active today, no change
-    if (lastActive === today && (state.streak?.currentCount || 0) > 0) return state;
+    // Ensure today is in activeDays
+    const hasToday = activeDays.includes(today);
+    const newActiveDays = hasToday ? activeDays : [...activeDays, today];
     
-    const yesterdayDate = new Date();
+    // If already active today, just ensure activeDays is updated
+    if (lastActive === today && (state.streak?.currentCount || 0) > 0) {
+      if (hasToday) return state;
+      return {
+        ...state,
+        streak: {
+          ...state.streak,
+          activeDays: newActiveDays,
+        }
+      };
+    }
+    
+    const yesterdayDate = new Date(now);
     yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-    const yesterday = yesterdayDate.toISOString().split('T')[0];
+    const yesterday = `${yesterdayDate.getFullYear()}-${String(yesterdayDate.getMonth() + 1).padStart(2, '0')}-${String(yesterdayDate.getDate()).padStart(2, '0')}`;
     
     const currentCount = state.streak?.currentCount || 0;
     const longestCount = state.streak?.longestCount || 0;
     
     let newCount = 1;
-    let newLongest = longestCount;
-    
     if (lastActive === yesterday) {
       newCount = currentCount + 1;
     }
     
-    if (newCount > newLongest) {
-      newLongest = newCount;
-    }
+    const newLongest = Math.max(longestCount, newCount);
     
     return {
       ...state,
@@ -247,6 +309,7 @@ export function useAppState() {
         currentCount: newCount,
         longestCount: newLongest,
         lastActiveDate: today,
+        activeDays: newActiveDays,
       }
     };
   };
@@ -263,11 +326,23 @@ export function useAppState() {
     addCourse,
     updateCourse,
     deleteCourse,
+    addTask,
+    updateTask,
+    deleteTask,
+    addLearningPlan,
+    updateLearningPlan,
+    deleteLearningPlan,
+    addReflection,
     updateStreak,
     // Add quick access to nested properties
     user: state.userProfile,
     courses: state.courses,
     tasks: state.tasks,
-    streak: state.streak,
+    streak: state.streak || { 
+      currentCount: 0, 
+      longestCount: 0, 
+      lastActiveDate: "", 
+      activeDays: [] 
+    },
   };
 }

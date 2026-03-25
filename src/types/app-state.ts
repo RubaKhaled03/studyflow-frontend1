@@ -22,6 +22,7 @@ export interface AppState {
     currentCount: number;
     longestCount: number;
     lastActiveDate: string; // ISO date string (YYYY-MM-DD)
+    activeDays: string[]; // List of dates in YYYY-MM-DD format
   };
   demoMode: boolean;
   lastUpdated: string;
@@ -72,6 +73,7 @@ export const EMPTY_APP_STATE: AppState = {
     currentCount: 0,
     longestCount: 0,
     lastActiveDate: "",
+    activeDays: [],
   },
   demoMode: false,
   lastUpdated: new Date().toISOString(),

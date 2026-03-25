@@ -8,11 +8,13 @@ import { useState } from "react";
 interface MiniCalendarProps {
   selectedDate: Date;
   onDateSelect: (date: Date) => void;
+  activeDays?: string[];
 }
 
 export function MiniCalendar({
   selectedDate,
   onDateSelect,
+  activeDays = [],
 }: MiniCalendarProps) {
   const [miniCalendarMonth, setMiniCalendarMonth] = useState(new Date());
 
@@ -78,6 +80,11 @@ export function MiniCalendar({
     );
   };
 
+  const isActiveDay = (day: number) => {
+    const dateStr = `${miniCalendarMonth.getFullYear()}-${String(miniCalendarMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return activeDays.includes(dateStr);
+  };
+
   return (
     <Card className="p-4 border-slate-200 dark:border-slate-800">
       {/* Header */}
@@ -118,7 +125,7 @@ export function MiniCalendar({
       </div>
 
       {/* Calendar days */}
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-2">
         {days.map((day, index) => (
           <button
             key={index}
@@ -133,7 +140,7 @@ export function MiniCalendar({
                 );
               }
             }}
-            className={`h-7 text-xs font-medium rounded transition-colors ${
+            className={`h-7 text-xs font-medium rounded transition-colors relative flex items-center justify-center ${
               day === null
                 ? "text-transparent"
                 : isSelected(day)
@@ -144,6 +151,9 @@ export function MiniCalendar({
             }`}
           >
             {day}
+            {day && isActiveDay(day) && (
+              <span className="absolute -top-1 -right-1 text-[8px]">🔥</span>
+            )}
           </button>
         ))}
       </div>

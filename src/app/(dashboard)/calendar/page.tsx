@@ -111,6 +111,7 @@ export default function CalendarPage() {
           <MiniCalendar
             selectedDate={selectedDate}
             onDateSelect={setSelectedDate}
+            activeDays={state.streak?.activeDays || []}
           />
 
           <FilterComponent
@@ -139,6 +140,7 @@ export default function CalendarPage() {
               currentDate={currentDate}
               onEventClick={handleEventClick}
               onDateClick={setSelectedDate}
+              activeDays={state.streak?.activeDays || []}
             />
           )}
 

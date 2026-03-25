@@ -8,6 +8,7 @@ interface MonthViewProps {
   currentDate: Date;
   onEventClick?: (event: CalendarEvent) => void;
   onDateClick?: (date: Date) => void;
+  activeDays?: string[];
 }
 
 export function MonthView({
@@ -15,6 +16,7 @@ export function MonthView({
   currentDate,
   onEventClick,
   onDateClick,
+  activeDays = [],
 }: MonthViewProps) {
   const firstDay = new Date(
     currentDate.getFullYear(),
@@ -110,18 +112,22 @@ export function MonthView({
                 isToday(day.dateObj) && "bg-blue-50 dark:bg-blue-900/20",
               )}
             >
-              {/* Day number */}
-              <div
-                className={cn(
-                  "text-xs font-semibold mb-1",
-                  day.isCurrentMonth
-                    ? "text-slate-900 dark:text-white"
-                    : "text-slate-400 dark:text-slate-600",
-                  isToday(day.dateObj) &&
-                    "inline-block w-5 h-5 text-center rounded-full bg-blue-600 text-white",
+              <div className="flex items-center justify-between mb-1">
+                <div
+                  className={cn(
+                    "text-xs font-semibold",
+                    day.isCurrentMonth
+                      ? "text-slate-900 dark:text-white"
+                      : "text-slate-400 dark:text-slate-600",
+                    isToday(day.dateObj) &&
+                      "inline-block w-5 h-5 text-center flex items-center justify-center rounded-full bg-blue-600 text-white",
+                  )}
+                >
+                  {day.date}
+                </div>
+                {activeDays.includes(`${day.dateObj.getFullYear()}-${String(day.dateObj.getMonth() + 1).padStart(2, '0')}-${String(day.dateObj.getDate()).padStart(2, '0')}`) && (
+                  <span className="text-xs">🔥</span>
                 )}
-              >
-                {day.date}
               </div>
 
               {/* Events */}

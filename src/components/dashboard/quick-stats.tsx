@@ -8,6 +8,7 @@ interface QuickStatsProps {
   completedCredits: number;
   milestones: number;
   streakCount: number;
+  longestStreak?: number;
 }
 
 export function QuickStats({ 
@@ -15,7 +16,8 @@ export function QuickStats({
   pendingTasks, 
   completedCredits, 
   milestones,
-  streakCount
+  streakCount,
+  longestStreak
 }: QuickStatsProps) {
   const stats = [
     {
@@ -48,7 +50,7 @@ export function QuickStats({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div className="sm:col-span-2 lg:col-span-1">
-        <StreakCard count={streakCount} />
+        <StreakCard count={streakCount} longestCount={longestStreak} />
       </div>
       
       {stats.map((stat) => (
