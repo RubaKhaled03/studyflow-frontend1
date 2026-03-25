@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
 export default function CoursesPage() {
-  const { state, isLoaded, updateState } = useAppState();
+  const { state, isLoaded, addCourse, updateCourse, deleteCourse } = useAppState();
   const courses = state.courses;
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -67,31 +67,21 @@ export default function CoursesPage() {
 
   const handleDeleteConfirm = () => {
     if (courseToDelete) {
-      updateState(prev => ({
-        ...prev,
-        courses: prev.courses.filter((c) => c.id !== courseToDelete.id)
-      }));
+      deleteCourse(courseToDelete.id);
       setIsDeleteDialogOpen(false);
       setCourseToDelete(null);
     }
   };
 
   const handleSaveCourse = (courseData: Omit<Course, "id">) => {
-    updateState(prev => {
-      let updatedCourses = [];
-      if (isEditing && selectedCourse) {
-        updatedCourses = prev.courses.map((c) =>
-          c.id === selectedCourse.id ? { ...courseData, id: c.id } as Course : c
-        );
-      } else {
-        const newCourse: Course = {
-          ...courseData,
-          id: Date.now().toString(),
-        };
-        updatedCourses = [...prev.courses, newCourse];
-      }
-      return { ...prev, courses: updatedCourses };
-    });
+    if (isEditing && selectedCourse) {
+      updateCourse({ ...courseData, id: selectedCourse.id } as Course);
+    } else {
+      addCourse({ 
+        ...courseData, 
+        id: crypto.randomUUID(),
+      } as Course);
+    }
 
     setIsDialogOpen(false);
     setSelectedCourse(undefined);

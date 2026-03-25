@@ -68,74 +68,187 @@ export function useAppState() {
    * Semesters
    */
   const addSemester = (semester: PlannerSemester) => {
-    updateState(prev => ({
-      ...prev,
-      academicPlanning: {
-        ...prev.academicPlanning,
-        semesters: [...prev.academicPlanning.semesters, semester]
-      }
-    }));
+    updateState(prev => {
+      const newState = {
+        ...prev,
+        academicPlanning: {
+          ...prev.academicPlanning,
+          semesters: [...prev.academicPlanning.semesters, semester]
+        }
+      };
+      return keepStreakAlive(newState);
+    });
   };
 
   const updateSemester = (semester: PlannerSemester) => {
-    updateState(prev => ({
-      ...prev,
-      academicPlanning: {
-        ...prev.academicPlanning,
-        semesters: prev.academicPlanning.semesters.map(s => s.id === semester.id ? semester : s)
-      }
-    }));
+    updateState(prev => {
+      const newState = {
+        ...prev,
+        academicPlanning: {
+          ...prev.academicPlanning,
+          semesters: prev.academicPlanning.semesters.map(s => s.id === semester.id ? semester : s)
+        }
+      };
+      return keepStreakAlive(newState);
+    });
   };
 
   const deleteSemester = (id: string) => {
-    updateState(prev => ({
-      ...prev,
-      academicPlanning: {
-        ...prev.academicPlanning,
-        semesters: prev.academicPlanning.semesters.filter(s => s.id !== id)
-      }
-    }));
+    updateState(prev => {
+      const newState = {
+        ...prev,
+        academicPlanning: {
+          ...prev.academicPlanning,
+          semesters: prev.academicPlanning.semesters.filter(s => s.id !== id)
+        }
+      };
+      return keepStreakAlive(newState);
+    });
   };
 
   /**
    * Courses
    */
   const addCourse = (course: Course) => {
-    updateState(prev => ({
-      ...prev,
-      academicPlanning: course.semesterId && 
-      course.semesterId !== "prior-completed" && 
-      !prev.academicPlanning.semesters.some(s => s.id === course.semesterId)
-        ? {
-            ...prev.academicPlanning,
-            semesters: [
-              ...prev.academicPlanning.semesters,
-              {
-                id: course.semesterId,
-                name: "New Semester",
-                status: "planned",
-                weeksCount: 16,
-                academicYear: new Date().getFullYear().toString(),
-              },
-            ],
-          }
-        : prev.academicPlanning,
-      courses: [...prev.courses, course]
-    }));
+    updateState(prev => {
+      const newState = {
+        ...prev,
+        academicPlanning: course.semesterId && 
+        course.semesterId !== "prior-completed" && 
+        !prev.academicPlanning.semesters.some(s => s.id === course.semesterId)
+          ? {
+              ...prev.academicPlanning,
+              semesters: [
+                ...prev.academicPlanning.semesters,
+                {
+                  id: course.semesterId,
+                  name: "New Semester",
+                  status: "planned" as "planned" | "current" | "completed",
+                  weeksCount: 16,
+                  academicYear: new Date().getFullYear().toString(),
+                },
+              ],
+            }
+          : prev.academicPlanning,
+        courses: [...prev.courses, course]
+      };
+      const newStateWithSync = syncSemesterStatus(newState, course.semesterId);
+      return keepStreakAlive(newStateWithSync);
+    });
   };
 
   const updateCourse = (course: Course) => {
-    updateState(prev => ({
-      ...prev,
-      courses: prev.courses.map(c => c.id === course.id ? course : c)
-    }));
+    updateState(prev => {
+      const newState = {
+        ...prev,
+        courses: prev.courses.map(c => c.id === course.id ? course : c)
+      };
+      
+      // Check old semester if it changed (though UI hide it now)
+      const oldCourse = prev.courses.find(c => c.id === course.id);
+      let finalState = syncSemesterStatus(newState, course.semesterId);
+      if (oldCourse?.semesterId && oldCourse.semesterId !== course.semesterId) {
+        finalState = syncSemesterStatus(finalState, oldCourse.semesterId);
+      }
+      return keepStreakAlive(finalState);
+    });
   };
 
   const deleteCourse = (id: string) => {
-    updateState(prev => ({
-      ...prev,
-      courses: prev.courses.filter(c => c.id !== id)
-    }));
+    updateState(prev => {
+      const course = prev.courses.find(c => c.id === id);
+      const newState = {
+        ...prev,
+        courses: prev.courses.filter(c => c.id !== id)
+      };
+      const finalState = syncSemesterStatus(newState, course?.semesterId);
+      return keepStreakAlive(finalState);
+    });
+  };
+
+  /**
+   * Helper to sync semester status based on courses
+   */
+  const syncSemesterStatus = (state: AppState, semesterId?: string): AppState => {
+    if (!semesterId || semesterId === "prior-completed") return state;
+    
+    const semesterCourses = state.courses.filter(c => c.semesterId === semesterId);
+    if (semesterCourses.length === 0) return state;
+
+    const allCompleted = semesterCourses.every(c => c.status === "completed");
+    const currentSemester = state.academicPlanning.semesters.find(s => s.id === semesterId);
+    
+    if (allCompleted && currentSemester?.status !== "completed") {
+      return {
+        ...state,
+        academicPlanning: {
+          ...state.academicPlanning,
+          semesters: state.academicPlanning.semesters.map(s => 
+            s.id === semesterId ? { ...s, status: "completed" } : s
+          )
+        }
+      };
+    } 
+    
+    // If not all completed but it's marked as completed, move back to current
+    if (!allCompleted && currentSemester?.status === "completed") {
+      return {
+        ...state,
+        academicPlanning: {
+          ...state.academicPlanning,
+          semesters: state.academicPlanning.semesters.map(s => 
+            s.id === semesterId ? { ...s, status: "current" } : s
+          )
+        }
+      };
+    }
+
+    return state;
+  };
+
+  /**
+   * Streak Management
+   */
+  const updateStreak = () => {
+    updateState(prev => keepStreakAlive(prev));
+  };
+
+  /**
+   * Helper to keep streak alive
+   */
+  const keepStreakAlive = (state: AppState): AppState => {
+    const today = new Date().toISOString().split('T')[0];
+    const lastActive = state.streak?.lastActiveDate || "";
+    
+    // If already active today, no change
+    if (lastActive === today && (state.streak?.currentCount || 0) > 0) return state;
+    
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterday = yesterdayDate.toISOString().split('T')[0];
+    
+    const currentCount = state.streak?.currentCount || 0;
+    const longestCount = state.streak?.longestCount || 0;
+    
+    let newCount = 1;
+    let newLongest = longestCount;
+    
+    if (lastActive === yesterday) {
+      newCount = currentCount + 1;
+    }
+    
+    if (newCount > newLongest) {
+      newLongest = newCount;
+    }
+    
+    return {
+      ...state,
+      streak: {
+        currentCount: newCount,
+        longestCount: newLongest,
+        lastActiveDate: today,
+      }
+    };
   };
 
   return {
@@ -150,9 +263,11 @@ export function useAppState() {
     addCourse,
     updateCourse,
     deleteCourse,
+    updateStreak,
     // Add quick access to nested properties
     user: state.userProfile,
     courses: state.courses,
     tasks: state.tasks,
+    streak: state.streak,
   };
 }

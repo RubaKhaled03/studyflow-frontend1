@@ -12,6 +12,7 @@ import {
   XCircle 
 } from "lucide-react";
 import { getGradeStatus } from "@/lib/academic-planning/grading";
+import { useRouter } from "next/navigation";
 
 interface CourseRowProps {
   course: Course;
@@ -20,6 +21,7 @@ interface CourseRowProps {
 }
 
 export function CourseRow({ course, onEdit, onDelete }: CourseRowProps) {
+  const router = useRouter();
   
   const renderStatusBadge = () => {
     switch (course.status) {
@@ -73,7 +75,10 @@ export function CourseRow({ course, onEdit, onDelete }: CourseRowProps) {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border border-border/60 bg-card hover:bg-muted/30 hover:shadow-sm transition-all duration-200 group gap-4">
+    <div 
+      className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border border-border/60 bg-card hover:bg-muted/30 hover:shadow-sm transition-all duration-200 group gap-4 cursor-pointer"
+      onClick={() => router.push(`/courses/${course.id}`)}
+    >
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1.5">
           <span className="font-semibold text-foreground truncate">{course.title}</span>
@@ -97,13 +102,16 @@ export function CourseRow({ course, onEdit, onDelete }: CourseRowProps) {
             {renderGradeInfo()}
           </div>
         </div>
-
+ 
         <div className="flex items-center gap-1 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
           <Button 
             variant="ghost" 
             size="icon" 
             className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted" 
-            onClick={() => onEdit(course)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(course);
+            }}
           >
             <Edit2 className="h-4 w-4" />
           </Button>
@@ -111,7 +119,10 @@ export function CourseRow({ course, onEdit, onDelete }: CourseRowProps) {
             variant="ghost" 
             size="icon" 
             className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50" 
-            onClick={() => onDelete(course.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(course.id);
+            }}
           >
             <Trash2 className="h-4 w-4" />
           </Button>

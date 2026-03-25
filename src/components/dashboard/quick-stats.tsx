@@ -1,18 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ListTodo, BookOpen, Flame, CheckCircle2 } from "lucide-react";
+import { ListTodo, BookOpen, CheckCircle2 } from "lucide-react";
+import { StreakCard } from "./streak-card";
 
 interface QuickStatsProps {
   activeCourses: number;
   pendingTasks: number;
   completedCredits: number;
   milestones: number;
+  streakCount: number;
 }
 
 export function QuickStats({ 
   activeCourses, 
   pendingTasks, 
   completedCredits, 
-  milestones 
+  milestones,
+  streakCount
 }: QuickStatsProps) {
   const stats = [
     {
@@ -32,25 +35,22 @@ export function QuickStats({
       bg: "bg-violet-500/10",
     },
     {
-      title: "Credits Passed",
+      title: "Completed Credits",
       subtitle: "Academic progress",
       value: completedCredits,
-      icon: Flame,
-      color: "text-orange-600",
-      bg: "bg-orange-500/10",
-    },
-    {
-      title: "Milestones Done",
-      subtitle: "Completed goals",
-      value: milestones,
       icon: CheckCircle2,
       color: "text-emerald-600",
       bg: "bg-emerald-500/10",
     },
+
   ];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="sm:col-span-2 lg:col-span-1">
+        <StreakCard count={streakCount} />
+      </div>
+      
       {stats.map((stat) => (
         <Card
           key={stat.title}

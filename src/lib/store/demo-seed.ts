@@ -33,8 +33,8 @@ export const DEMO_APP_STATE: AppState = {
   onboardingCompleted: true,
   courses: SEED_COURSES.map(c => {
     // Add missing planning fields to seed courses
-    if (c.id === "c1") return { ...c, semesterId: "sem-1", useSemesterWeeks: true };
-    if (c.id === "c2") return { ...c, semesterId: "sem-1", useSemesterWeeks: true };
+    if (c.id === "c1") return { ...c, semesterId: "sem-1" };
+    if (c.id === "c2") return { ...c, semesterId: "sem-1" };
     return c;
   }),
   tasks: [

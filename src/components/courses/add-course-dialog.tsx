@@ -35,7 +35,6 @@ const defaultFormData: Omit<Course, "id"> = {
   instructor: "",
   credits: 3,
   semesterId: "",
-  useSemesterWeeks: true,
   status: "planned",
   imageUrl: "",
   durationWeeks: 16,
@@ -77,7 +76,6 @@ export function AddCourseDialog({
           instructor: initialData.instructor,
           credits: initialData.credits,
           semesterId: initialData.semesterId || "",
-          useSemesterWeeks: initialData.useSemesterWeeks ?? true,
           status: initialData.status,
           imageUrl: initialData.imageUrl,
           durationWeeks: initialData.durationWeeks || 16,
@@ -102,13 +100,13 @@ export function AddCourseDialog({
 
   // Handle semester-driven week inheritance
   useEffect(() => {
-    if (formData.semesterId && formData.useSemesterWeeks && !isEditing) {
+    if (formData.semesterId && formData.semesterId !== "prior-completed") {
       const selectedSemester = semesters.find(s => s.id === formData.semesterId);
       if (selectedSemester) {
         setFormData(prev => ({ ...prev, durationWeeks: selectedSemester.weeksCount }));
       }
     }
-  }, [formData.semesterId, formData.useSemesterWeeks, semesters, isEditing]);
+  }, [formData.semesterId, semesters]);
 
   // Calculate current planned/completed credits logic with dual-bucket support
   const academicSummary = useMemo(() => {
@@ -211,7 +209,7 @@ export function AddCourseDialog({
         ...finalData,
         createdAt: new Date().toISOString(),
       });
-      toast.success("Course added successfully");
+      toast.success(isEditing ? "Course updated successfully" : "Course added successfully");
       handleClose(true);
     } catch (err) {
       if (process.env.NODE_ENV !== "production") {
@@ -353,10 +351,13 @@ export function AddCourseDialog({
                                 <Input
                                     id="durationWeeks"
                                     type="number"
-                                    disabled={formData.useSemesterWeeks && !!formData.semesterId}
+                                    disabled={!!formData.semesterId && formData.semesterId !== "prior-completed"}
                                     value={formData.durationWeeks}
                                     onChange={(e) => setFormData({ ...formData, durationWeeks: parseInt(e.target.value) || 16 })}
                                 />
+                                {!!formData.semesterId && formData.semesterId !== "prior-completed" && (
+                                    <p className="text-[10px] text-muted-foreground">Inherited from semester</p>
+                                )}
                             </div>
                         )}
                     </div>
@@ -366,7 +367,12 @@ export function AddCourseDialog({
                 <div className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="semester" className="font-semibold">Semester *</Label>
-                        {semesterId === "prior-completed" ? (
+                        {isEditing ? (
+                            <div className="p-2 border rounded-xl bg-muted/30 text-muted-foreground text-sm font-medium flex items-center gap-2">
+                                <Calendar className="w-4 h-4" />
+                                {semesters.find(s => s.id === formData.semesterId)?.name || "Current Semester"}
+                            </div>
+                        ) : semesterId === "prior-completed" ? (
                             <div className="p-2 border rounded-xl bg-blue-50 text-blue-700 text-sm font-medium flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-blue-500" />
                                 Prior Completed Courses
@@ -389,18 +395,7 @@ export function AddCourseDialog({
                         {errors.semesterId && <p className="text-sm text-red-500">{errors.semesterId}</p>}
                     </div>
 
-                    {formData.semesterId && semesterId !== "prior-completed" && (
-                        <div className="flex items-center justify-between p-3 bg-muted/30 border rounded-xl animate-in slide-in-from-top-2">
-                            <div className="space-y-0.5">
-                                <Label className="text-sm font-semibold">Sync with Semester</Label>
-                                <p className="text-[10px] text-muted-foreground">Automatically use semester week count</p>
-                            </div>
-                            <Switch 
-                                checked={formData.useSemesterWeeks} 
-                                onCheckedChange={(val) => setFormData({ ...formData, useSemesterWeeks: val })}
-                            />
-                        </div>
-                    )}
+
 
                     {semesterId !== "prior-completed" && (
                         <div className="space-y-2">

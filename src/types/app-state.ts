@@ -18,6 +18,11 @@ export interface AppState {
   selfLearningPlans: LearningPlan[];
   reflections: ReflectionEntry[];
   notifications: Notification[];
+  streak: {
+    currentCount: number;
+    longestCount: number;
+    lastActiveDate: string; // ISO date string (YYYY-MM-DD)
+  };
   demoMode: boolean;
   lastUpdated: string;
 }
@@ -63,6 +68,11 @@ export const EMPTY_APP_STATE: AppState = {
   selfLearningPlans: [],
   reflections: [],
   notifications: [],
+  streak: {
+    currentCount: 0,
+    longestCount: 0,
+    lastActiveDate: "",
+  },
   demoMode: false,
   lastUpdated: new Date().toISOString(),
 };

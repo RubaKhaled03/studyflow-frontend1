@@ -126,7 +126,6 @@ export interface Course {
   instructor: string;
   credits: number;
   semesterId?: string; // Link to PlannerSemester
-  useSemesterWeeks?: boolean; // Default true, inherits from semester
   status: CourseStatus;
   imageUrl: string;
   durationWeeks: number; // Required: duration in weeks

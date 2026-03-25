@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useAppState } from "@/hooks/use-app-state";
 import { 
   selectDashboardStats, 
@@ -40,6 +41,7 @@ export default function Dashboard() {
         pendingTasks={stats.pendingTasks}
         completedCredits={stats.completedCredits}
         milestones={stats.milestones}
+        streakCount={state.streak.currentCount}
       />
 
       {/* Main Content Grid */}
