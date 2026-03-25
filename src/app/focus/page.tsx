@@ -11,7 +11,7 @@ import { SettingsPanel, FOCUS_LEVELS } from "@/components/focus/settings-panel";
 import { TasksPanel } from "@/components/focus/tasks-panel";
 import { ChallengeBar } from "@/components/focus/challenge-bar";
 import { useTimer } from "@/hooks/use-timer";
-import { Spinner } from "@/components/ui/spinner";
+import { FocusSkeleton } from "@/components/shared/skeletons";
 
 const STORAGE_KEY = "pomodoro-settings";
 const CHALLENGE_STORAGE_KEY = "daily-challenge";
@@ -286,15 +286,8 @@ export default function FocusPage() {
 
   const totalSessionTime = getDurationForSession(activeSession);
   const progress = ((totalSessionTime - time) / totalSessionTime) * 100;
-
   if (!mounted) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-muted-foreground">
-          <Spinner />
-        </div>
-      </div>
-    );
+    return <FocusSkeleton />;
   }
 
   return (

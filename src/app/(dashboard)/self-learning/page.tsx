@@ -10,7 +10,7 @@ import { SelfLearningFilters } from "@/components/self-learning/self-learning-fi
 import { LearningPlanCard } from "@/components/self-learning/learning-plan-card";
 import { LearningPlanFormDialog } from "@/components/self-learning/learning-plan-form-dialog";
 import { SelfLearningEmptyState } from "@/components/self-learning/self-learning-empty-state";
-import { Spinner } from "@/components/ui/spinner";
+import { HeaderSkeleton, CardGridSkeleton } from "@/components/shared/skeletons";
 
 import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
 
@@ -70,8 +70,9 @@ export default function SelfLearningPage() {
 
   if (!isLoaded) {
     return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Spinner />
+      <div className="space-y-6">
+        <HeaderSkeleton />
+        <CardGridSkeleton count={4} />
       </div>
     );
   }

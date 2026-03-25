@@ -13,7 +13,7 @@ import { ReflectionDetailDialog } from "@/components/reflections/reflection-deta
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
-import { Spinner } from "@/components/ui/spinner";
+import { HeaderSkeleton, ListSkeleton } from "@/components/shared/skeletons";
 import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
 
 export default function ReflectionsPage() {
@@ -88,8 +88,9 @@ export default function ReflectionsPage() {
 
   if (!isLoaded) {
     return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Spinner />
+      <div className="space-y-6">
+        <HeaderSkeleton />
+        <ListSkeleton count={4} />
       </div>
     );
   }

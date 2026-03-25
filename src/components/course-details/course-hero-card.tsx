@@ -41,11 +41,6 @@ export function CourseHeroCard({ course }: CourseHeroCardProps) {
 
   return (
     <div className="space-y-6">
-      <Button onClick={() => router.back()} variant="outline" className="gap-2">
-        <ArrowLeft className="h-4 w-4" />
-        Back to Courses
-      </Button>
-
       <Card className="overflow-hidden bg-gradient-to-br from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 border-slate-200 dark:border-slate-800">
         <div className="p-6 md:p-8 flex flex-col md:flex-row gap-8">
           {/* Left: Course Image */}

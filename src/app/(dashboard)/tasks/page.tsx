@@ -11,8 +11,7 @@ import { TasksFilters } from "@/components/tasks/tasks-filters";
 import { TasksTable } from "@/components/tasks/tasks-table";
 import { TaskFormDialog } from "@/components/tasks/task-form-dialog";
 import { TasksEmptyState } from "@/components/tasks/tasks-empty-state";
-import { Spinner } from "@/components/ui/spinner";
-
+import { HeaderSkeleton, ListSkeleton } from "@/components/shared/skeletons";
 import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
 
 export default function TasksPage() {
@@ -73,8 +72,9 @@ export default function TasksPage() {
 
   if (!isLoaded) {
     return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Spinner />
+      <div className="space-y-6">
+        <HeaderSkeleton />
+        <ListSkeleton count={6} />
       </div>
     );
   }

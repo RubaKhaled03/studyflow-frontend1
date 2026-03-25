@@ -1,78 +1,11 @@
-"use client";
+import { Metadata } from "next";
+import DashboardClient from "@/components/dashboard/dashboard-client";
 
-import { useEffect } from "react";
-import { useAppState } from "@/hooks/use-app-state";
-import { 
-  selectDashboardStats, 
-  selectHighPriorityTasks, 
-  selectAcademicSummary 
-} from "@/lib/store/app-selectors";
-import { WelcomeSection } from "@/components/dashboard/welcome-section";
-import { QuickStats } from "@/components/dashboard/quick-stats";
-import { FocusModeCard } from "@/components/dashboard/focus-mode-card";
-import { QuickActions } from "@/components/dashboard/quick-actions";
-import { SelfLearningProgress } from "@/components/dashboard/self-learning-progress";
-import { HighPriorityTasks } from "@/components/dashboard/high-priority-tasks";
-import { AcademicProgress } from "@/components/dashboard/academic-progress";
-import { Spinner } from "@/components/ui/spinner";
+export const metadata: Metadata = {
+  title: "Dashboard | StudyFlow",
+  description: "Manage your academic life, track your GPA, organize tasks, and monitor your study progress in one central dashboard.",
+};
 
-export default function Dashboard() {
-  const { state, isLoaded, updateStreak } = useAppState();
-
-  useEffect(() => {
-    if (isLoaded) {
-      updateStreak();
-    }
-  }, [isLoaded, updateStreak]);
-
-  if (!isLoaded) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Spinner />
-      </div>
-    );
-  }
-
-  const stats = selectDashboardStats(state);
-  const highPriorityTasks = selectHighPriorityTasks(state);
-  const academicSummary = selectAcademicSummary(state);
-
-  return (
-    <div className="space-y-6 pb-8 pt-4 md:pt-6 animate-in fade-in zoom-in-95 duration-500">
-      <WelcomeSection userName={state.userProfile.name} />
-      
-      {/* Top Row: Quick Stats */}
-      <QuickStats 
-        activeCourses={stats.activeCourses}
-        pendingTasks={stats.pendingTasks}
-        completedCredits={stats.completedCredits}
-        milestones={stats.milestones}
-        streakCount={state.streak?.currentCount || 0}
-        longestStreak={state.streak?.longestCount || 0}
-      />
-
-      {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 ">
-        {/* Left Column (2/3 width on large screens) */}
-        <div className="lg:col-span-2 space-y-6">
-          <HighPriorityTasks tasks={highPriorityTasks} />
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <AcademicProgress 
-              completionPercentage={academicSummary.completionPercentage}
-              passedCredits={academicSummary.passedCredits}
-              requiredCredits={academicSummary.requiredCredits}
-            />
-            <SelfLearningProgress plans={state.selfLearningPlans} />
-          </div>
-        </div>
-
-        {/* Right Column (1/3 width on large screens) */}
-        <div className="space-y-6">
-          <FocusModeCard />
-          <QuickActions />
-        </div>
-      </div>
-    </div>
-  );
+export default function DashboardPage() {
+  return <DashboardClient />;
 }

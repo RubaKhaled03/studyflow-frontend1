@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
+import Script from "next/script";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,21 +16,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
+  metadataBase: new URL("https://studyflow-frontend-roan.vercel.app"),
   title: {
     template: "%s | StudyFlow",
-    default: "StudyFlow | Organize your courses, tasks, and productivity",
+    default: "StudyFlow | Smart Academic Platform for University Students",
   },
   description:
-    "Organize your courses, tasks, and productivity in one smart platform built for students.",
+    "StudyFlow is a smart academic platform that helps university students manage courses, track GPA, organize tasks, and build structured self-learning plans to achieve academic excellence.",
   keywords: [
     "StudyFlow",
     "student organization",
     "academic planner",
+    "GPA tracking",
     "study tools",
     "task management",
     "university courses",
-    "productivity app"
+    "productivity app",
+    "learning plans",
+    "student success"
   ],
   applicationName: "StudyFlow",
   authors: [{ name: "StudyFlow Team" }],
@@ -41,16 +45,16 @@ export const metadata: Metadata = {
     telephone: false,
   },
   openGraph: {
-    type: "website",
+    title: "StudyFlow | Smart Academic Platform for University Students",
+    description: "Organize your academic life, track GPAs, and manage tasks with StudyFlow - the ultimate productivity tool for students.",
+    url: "https://studyflow-frontend-roan.vercel.app",
     siteName: "StudyFlow",
-    title: "StudyFlow | Organize your courses, tasks, and productivity",
-    description:
-      "Organize your courses, tasks, and productivity in one smart platform built for students.",
+    type: "website",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "https://studyflow-frontend-roan.vercel.app/logo.png",
         width: 1200,
-        height: 627,
+        height: 630,
         alt: "StudyFlow - Student Organization Platform",
       },
     ],
@@ -68,21 +72,29 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.ico" },
-      { url: "/favicon-16x16", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
     ],
     apple: [
-      { url: "/apple-icon.png" },
-      { url: "/apple-icon-180x180.png", sizes: "180x180", type: "image/png" },
-    ],
-    other: [
-      {
-        rel: "mask-icon",
-        url: "/safari-pinned-tab.svg",
-      },
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
   manifest: "/manifest.json",
+};
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "StudyFlow",
+  "url": "https://studyflow-frontend-roan.vercel.app",
+  "logo": "https://studyflow-frontend-roan.vercel.app/logo.png",
+  "sameAs": [],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "customer service",
+    "email": "support@studyflow.app",
+    "availableLanguage": "English"
+  }
 };
 
 export default function RootLayout({
@@ -103,6 +115,11 @@ export default function RootLayout({
           {children}
         </ThemeProvider>
         <Toaster richColors position="top-right" />
+        <Script
+          id="organization-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
       </body>
     </html>
   );

@@ -4,7 +4,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useAppState } from "@/hooks/use-app-state";
 import { Course, StudyTask, Assignment, Exam, Resource, WeeklyPlan } from "@/types/course";
-import { Spinner } from "@/components/ui/spinner";
+import { HeaderSkeleton, ListSkeleton } from "@/components/shared/skeletons";
 import { Card } from "@/components/ui/card";
 import { CourseHeroCard } from "@/components/course-details/course-hero-card";
 import { WeeklyTimeline } from "@/components/course-details/weekly-timeline";
@@ -162,10 +162,11 @@ export default function CourseDetailsPage() {
     updateCourse({ ...course, resources });
   };
 
-  if (!isLoaded) {
+  if (!course || !isLoaded) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Spinner />
+      <div className="space-y-6">
+        <HeaderSkeleton />
+        <ListSkeleton count={4} />
       </div>
     );
   }

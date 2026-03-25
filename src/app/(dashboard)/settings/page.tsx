@@ -11,7 +11,7 @@ import { AppearanceSection } from "@/components/settings/appearance-section";
 import { Button } from "@/components/ui/button";
 import { Save, CheckCircle2, LogOut, AlertCircle, RefreshCcw } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { Spinner } from "@/components/ui/spinner";
+import { HeaderSkeleton, ListSkeleton } from "@/components/shared/skeletons";
 import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
 
 export default function SettingsPage() {
@@ -100,8 +100,9 @@ export default function SettingsPage() {
 
   if (!isLoaded || !localProfile) {
     return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Spinner />
+      <div className="space-y-6">
+        <HeaderSkeleton />
+        <ListSkeleton count={4} />
       </div>
     );
   }

@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Spinner } from "@/components/ui/spinner";
+import { HeaderSkeleton, ListSkeleton } from "@/components/shared/skeletons";
 import {
   ArrowLeft, Plus, CheckCircle2, Circle, Pencil, Trash2, Target, Calendar,
   ChevronDown, Zap, BookOpen, Flag, PauseCircle
@@ -71,13 +71,14 @@ export default function PlanDetailsPage() {
 
   const progress = useMemo(() => plan ? calcPlanProgress(plan) : 0, [plan]);
 
-  if (!isLoaded) return <div className="flex min-h-screen items-center justify-center"><Spinner /></div>;
-  if (!plan) return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-      <p className="text-muted-foreground">Learning plan not found.</p>
-      <Button variant="outline" onClick={() => router.back()}>Go Back</Button>
-    </div>
-  );
+  if (!isLoaded || !plan) {
+    return (
+      <div className="space-y-6">
+        <HeaderSkeleton />
+        <ListSkeleton count={5} />
+      </div>
+    );
+  }
 
   const badge = STATUS_BADGE[plan.status];
   const completedStages = plan.stages.filter(s => s.status === "completed").length;

@@ -19,7 +19,7 @@ import { WeekView } from "@/components/calendar/week-view";
 import { DayView } from "@/components/calendar/day-view";
 import { AgendaView } from "@/components/calendar/agenda-view";
 import { EventDetailsModal } from "@/components/calendar/event-details-modal";
-import { Spinner } from "@/components/ui/spinner";
+import { CalendarSkeleton } from "@/components/shared/skeletons";
 
 export default function CalendarPage() {
   const router = useRouter();
@@ -86,11 +86,7 @@ export default function CalendarPage() {
   };
 
   if (!isLoaded) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Spinner />
-      </div>
-    );
+    return <CalendarSkeleton />;
   }
 
   return (

@@ -6,7 +6,7 @@ import { CourseCard } from "@/components/courses/course-card";
 import { CoursesTabs } from "@/components/courses/courses-tabs";
 import { AddCourseDialog } from "@/components/courses/add-course-dialog";
 import { DeleteCourseAlertDialog } from "@/components/courses/delete-course-alert-dialog";
-import { Spinner } from "@/components/ui/spinner";
+import { HeaderSkeleton, CardGridSkeleton } from "@/components/shared/skeletons";
 import { useAppState } from "@/hooks/use-app-state";
 
 import { Button } from "@/components/ui/button";
@@ -89,8 +89,9 @@ export default function CoursesPage() {
 
   if (!isLoaded) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Spinner />
+      <div className="space-y-6">
+        <HeaderSkeleton />
+        <CardGridSkeleton count={6} />
       </div>
     );
   }

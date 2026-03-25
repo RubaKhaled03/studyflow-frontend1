@@ -19,7 +19,7 @@ import {
   Trash2, Plus, FileText, Play, Link, ExternalLink, Lightbulb, Target
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Spinner } from "@/components/ui/spinner";
+import { HeaderSkeleton, ListSkeleton } from "@/components/shared/skeletons";
 
 // -----------------------------------------------
 // Countdown 
@@ -113,8 +113,13 @@ export default function ExamModePage() {
   const countdown = useCountdown(exam?.date, exam?.time);
   const progress = examState ? calcRevisionProgress(examState.topics) : 0;
 
-  if (!isLoaded) {
-    return <div className="flex min-h-screen items-center justify-center"><Spinner /></div>;
+  if (!isLoaded || !exam) {
+    return (
+      <div className="space-y-6">
+        <HeaderSkeleton />
+        <ListSkeleton count={4} />
+      </div>
+    );
   }
 
   if (!course || !exam) {

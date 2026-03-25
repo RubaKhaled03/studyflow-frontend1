@@ -10,7 +10,7 @@ import { AddSemesterDialog } from "@/components/academic-planning/add-semester-d
 import { AddCourseDialog } from "@/components/courses/add-course-dialog"; // Changed import path
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/hooks/use-app-state";
-import { Spinner } from "@/components/ui/spinner";
+import { HeaderSkeleton, ListSkeleton } from "@/components/shared/skeletons";
 import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
 import { AlertCircle, Plus, Edit2, Trash2, Settings2, RefreshCcw } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -180,8 +180,9 @@ export default function AcademicPlanningPage() { // Changed component name
 
   if (!isLoaded) {
     return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Spinner />
+      <div className="space-y-6">
+        <HeaderSkeleton />
+        <ListSkeleton count={3} />
       </div>
     );
   }

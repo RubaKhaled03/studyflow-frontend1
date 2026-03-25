@@ -570,6 +570,8 @@ export function useAppState() {
     user: state.userProfile,
     courses: state.courses,
     tasks: state.tasks,
+    selfLearningPlans: state.selfLearningPlans,
+    reflections: state.reflections,
     streak: state.streak || { 
       currentCount: 0, 
       longestCount: 0, 
