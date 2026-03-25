@@ -52,12 +52,19 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "https://studyflow-frontend-roan.vercel.app/logo.png",
+        url: "/logo.png",
         width: 1200,
         height: 630,
-        alt: "StudyFlow - Student Organization Platform",
+        alt: "StudyFlow - Smart Academic Platform for University Students",
       },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "StudyFlow | The Ultimate Student Organizer",
+    description: "Manage courses, track GPA, and organize tasks with StudyFlow. The smart way to achieve academic excellence.",
+    images: ["/logo.png"],
+    creator: "@StudyFlow",
   },
   robots: {
     index: true,
