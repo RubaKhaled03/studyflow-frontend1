@@ -27,7 +27,7 @@ export const AuthService = {
    * Send password reset link
    */
   async forgotPassword(email: string) {
-    return apiClient.post<{ message: string }>("/auth/forgot-password", { email });
+    return apiClient.post<{ message: string; token: string; email: string }>("/auth/forgot-password", { email });
   },
 
   /**

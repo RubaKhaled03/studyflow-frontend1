@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2, ArrowLeft, CheckCircle2 } from "lucide-react"
 import Link from "next/link"
+import { AuthService } from "@/services/auth.service"
 
 export function ForgotPasswordForm() {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [email, setEmail] = useState("")
@@ -17,11 +19,20 @@ export function ForgotPasswordForm() {
     e.preventDefault()
     setIsLoading(true)
     
-    // Simulate API call to send reset link
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    setIsLoading(false)
-    setIsSubmitted(true)
+    try {
+      const response = await AuthService.forgotPassword(email);
+      // Laravel returns the token and email directly in this mock/dev flow
+      if (response.token) {
+        router.push(`/reset-password?token=${response.token}&email=${response.email || email}`);
+      } else {
+        setIsSubmitted(true);
+      }
+    } catch (error) {
+      console.error("Forgot password error:", error);
+      // In case of error, maybe show a toast or stay on page
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (isSubmitted) {
