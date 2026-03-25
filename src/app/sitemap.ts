@@ -6,13 +6,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Base routes to be indexed
   const routes = [
     '',
-    '/login',
-    '/register',
-    '/setup',
-    '/faq',
-    '/blog',
     '/about',
     '/contact',
+    '/blog',
+    '/faq',
     '/pricing',
     '/privacy',
     '/terms',

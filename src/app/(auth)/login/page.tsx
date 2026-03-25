@@ -1,6 +1,16 @@
-import Link from "next/link";
-import Image from "next/image";
 import { LoginForm } from "@/components/auth/login-form";
+import Link from "next/link";
+import Image from "next/image"; 
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Login | StudyFlow",
+  description: "Sign in to your StudyFlow account to manage your academic life.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function LoginPage() {
   return (

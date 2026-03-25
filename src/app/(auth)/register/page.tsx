@@ -1,6 +1,16 @@
+import { RegisterForm } from "@/components/auth/register-form";
+import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { RegisterForm } from "@/components/auth/register-form";
+
+export const metadata: Metadata = {
+  title: "Register | StudyFlow",
+  description: "Create a StudyFlow account to start organizing your academic journey.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function RegisterPage() {
   return (
