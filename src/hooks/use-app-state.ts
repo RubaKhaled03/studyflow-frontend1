@@ -478,7 +478,7 @@ export function useAppState() {
             // Weekly Items
             if (task.id.startsWith("w-item-")) {
               const iId = task.id.replace("w-item-", "");
-              return { ...course, weeklyPlan: course.weeklyPlan?.map(w => ({ ...w, items: w.items.filter(item => item.id !== iId) })) };
+              return { ...course, weeklyPlan: course.weeklyPlan?.map(w => ({ ...w, items: w.items?.filter(item => item.id !== iId) })) };
             }
 
             // ... other course items if deletable ...

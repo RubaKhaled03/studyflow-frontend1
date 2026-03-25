@@ -137,6 +137,16 @@ export const DEMO_APP_STATE: AppState = {
       targetRoute: "/dashboard",
     }
   ],
+  streak: {
+    currentCount: 3,
+    longestCount: 5,
+    lastActiveDate: new Date().toISOString().split('T')[0],
+    activeDays: [
+      new Date().toISOString().split('T')[0],
+      new Date(Date.now() - 86400000).toISOString().split('T')[0],
+      new Date(Date.now() - 86400000 * 2).toISOString().split('T')[0],
+    ]
+  },
   demoMode: true,
   lastUpdated: new Date().toISOString(),
 };
