@@ -80,13 +80,17 @@ export function TaskFormDialog({ open, onOpenChange, onSave, initialData }: Task
       title: title.trim(),
       description: description.trim() || undefined,
       type,
-      sourceModule: (type === "self-learning-milestone") ? "self-learning" : (type === "general") ? "general" : "course",
+      sourceModule: initialData?.sourceModule ?? ((type === "self-learning-milestone") ? "self-learning" : (type === "general") ? "general" : "course"),
       priority,
       status,
       dueDate: dueDate || undefined,
       dueTime: dueTime || undefined,
       linkedCourseTitle: linkedCourseTitle.trim() || undefined,
       linkedCourseId: initialData?.linkedCourseId,
+      linkedWeekId: initialData?.linkedWeekId,
+      linkedWeekLabel: initialData?.linkedWeekLabel,
+      linkedLearningPlanId: initialData?.linkedLearningPlanId,
+      linkedLearningPlanTitle: initialData?.linkedLearningPlanTitle,
       recurrence: recurrenceEnabled ? { frequency, interval } : undefined,
       reminder: reminderConfig.enabled,
       reminderConfig,
@@ -104,8 +108,17 @@ export function TaskFormDialog({ open, onOpenChange, onSave, initialData }: Task
       <DialogContent className="sm:max-w-[600px] h-[90vh] sm:h-[80vh] flex flex-col p-0 overflow-hidden rounded-2xl">
         
         <DialogHeader className="px-6 py-4 border-b bg-muted/20 shrink-0">
-          <DialogTitle className="text-xl">{initialData ? "Edit Task" : "Add New Task"}</DialogTitle>
-          <DialogDescription>Fill in the details below to {initialData ? "update this" : "create a new"} task.</DialogDescription>
+          <DialogTitle className="text-xl">
+            {initialData ? (
+              initialData.sourceModule === "self-learning" ? "Edit Learning Task" :
+              initialData.sourceModule === "course" ? "Edit Course Task" : "Edit Task"
+            ) : "Add New Task"}
+          </DialogTitle>
+          <DialogDescription>
+            {initialData?.sourceModule === "self-learning" ? "Update your learning stage task details." :
+             initialData?.sourceModule === "course" ? "Update your course assignment or study task." :
+             "Fill in the details below to create a new task."}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -123,48 +136,55 @@ export function TaskFormDialog({ open, onOpenChange, onSave, initialData }: Task
             />
           </div>
 
-          {/* Description */}
-          <div className="space-y-2">
-            <Label htmlFor="task-description" className="font-semibold text-muted-foreground">Description</Label>
-            <Textarea
-              id="task-description"
-              placeholder="Optional — add more context..."
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              className="resize-none min-h-[70px]"
-            />
-          </div>
+          {/* Description - Hide for Stage Tasks but keep for Milestones and Others */}
+          {(initialData?.sourceModule !== "self-learning" || initialData?.id.startsWith("milestone-")) && (
+            <div className="space-y-2">
+              <Label htmlFor="task-description" className="font-semibold text-muted-foreground">Description</Label>
+              <span className="text-[10px] text-muted-foreground ml-2">(Optional)</span>
+              <Textarea
+                id="task-description"
+                placeholder="Add more context..."
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                className="resize-none min-h-[70px]"
+              />
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
-            {/* Type */}
-            <div className="space-y-2">
-              <Label htmlFor="task-type" className="font-semibold">Task Type <span className="text-red-500">*</span></Label>
-              <Select value={type} onValueChange={(v: TaskType) => setType(v)}>
-                <SelectTrigger id="task-type" className="h-10">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {TASK_TYPES.map(t => (
-                    <SelectItem key={t} value={t}>{TASK_TYPE_LABELS[t]}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Type - Hide for Course and Self-Learning (fixed context) */}
+            {(!initialData || initialData.sourceModule === "general") && (
+              <div className="space-y-2">
+                <Label htmlFor="task-type" className="font-semibold">Task Type <span className="text-red-500">*</span></Label>
+                <Select value={type} onValueChange={(v: TaskType) => setType(v)}>
+                  <SelectTrigger id="task-type" className="h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {TASK_TYPES.map(t => (
+                      <SelectItem key={t} value={t}>{TASK_TYPE_LABELS[t]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
-            {/* Priority */}
-            <div className="space-y-2">
-              <Label htmlFor="task-priority" className="font-semibold">Priority <span className="text-red-500">*</span></Label>
-              <Select value={priority} onValueChange={(v: TaskPriority) => setPriority(v)}>
-                <SelectTrigger id="task-priority" className="h-10">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Priority - Hide for Self-Learning */}
+            {initialData?.sourceModule !== "self-learning" && (
+              <div className="space-y-2">
+                <Label htmlFor="task-priority" className="font-semibold">Priority <span className="text-red-500">*</span></Label>
+                <Select value={priority} onValueChange={(v: TaskPriority) => setPriority(v)}>
+                  <SelectTrigger id="task-priority" className="h-10">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Due Date */}
             <div className="space-y-2">
@@ -199,93 +219,110 @@ export function TaskFormDialog({ open, onOpenChange, onSave, initialData }: Task
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="todo">To Do</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
-                  <SelectItem value="done">Done</SelectItem>
+                  {initialData?.sourceModule === "self-learning" ? (
+                    <>
+                      <SelectItem value="todo">Pending</SelectItem>
+                      <SelectItem value="done">Completed</SelectItem>
+                    </>
+                  ) : (
+                    <>
+                      <SelectItem value="todo">To Do</SelectItem>
+                      <SelectItem value="in-progress">In Progress</SelectItem>
+                      <SelectItem value="done">Done</SelectItem>
+                    </>
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Linked Course (optional) */}
-            <div className="space-y-2">
-              <Label htmlFor="task-course" className="font-semibold text-muted-foreground">Linked Course (optional)</Label>
-              <Input
-                id="task-course"
-                placeholder="e.g. Data Structures"
-                value={linkedCourseTitle}
-                onChange={e => setLinkedCourseTitle(e.target.value)}
-                className="h-10 placeholder:text-muted-foreground/50"
-              />
-            </div>
-          </div>
-
-          {/* Notes */}
-          <div className="space-y-2">
-            <Label htmlFor="task-notes" className="font-semibold text-muted-foreground">Notes</Label>
-            <Textarea
-              id="task-notes"
-              placeholder="Private notes, references, or reminders..."
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              className="resize-none min-h-[60px]"
-            />
-          </div>
-
-          {/* Reminder Section */}
-          <div className="space-y-2 pt-2">
-            <Label className="font-semibold">Reminder</Label>
-            <ReminderFields 
-              config={reminderConfig} 
-              onChange={(updates) => setReminderConfig({ ...reminderConfig, ...updates })}
-            />
-          </div>
-
-          {/* Recurrence Section */}
-          <div className="space-y-4 pt-2 border-t border-slate-100 dark:border-slate-800">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="recurrence" className="font-semibold cursor-pointer">Repeat Task (Recurring)</Label>
-              <input 
-                type="checkbox" 
-                id="recurrence"
-                checked={recurrenceEnabled}
-                onChange={(e) => setRecurrenceEnabled(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
-              />
-            </div>
-
-            {recurrenceEnabled && (
-              <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 animate-in slide-in-from-top-2 duration-300">
-                <div className="space-y-2">
-                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Frequency</Label>
-                  <Select value={frequency} onValueChange={(v: any) => setFrequency(v)}>
-                    <SelectTrigger className="h-9 bg-white dark:bg-slate-950">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="daily">Daily</SelectItem>
-                      <SelectItem value="weekly">Weekly</SelectItem>
-                      <SelectItem value="monthly">Monthly</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Every (Interval)</Label>
-                  <div className="flex items-center gap-2">
-                    <Input 
-                      type="number" 
-                      min={1} 
-                      value={interval}
-                      onChange={(e) => setInterval(parseInt(e.target.value) || 1)}
-                      className="h-9 w-16 bg-white dark:bg-slate-950"
-                    />
-                    <span className="text-xs text-muted-foreground">
-                      {frequency === "daily" ? "days" : frequency === "weekly" ? "weeks" : "months"}
-                    </span>
-                  </div>
-                </div>
+            {/* Linked Course (optional) - Hide for existing Course/Self-Learning tasks */}
+            {(!initialData || initialData.sourceModule === "general") && (
+              <div className="space-y-2">
+                <Label htmlFor="task-course" className="font-semibold text-muted-foreground">Linked Course (optional)</Label>
+                <Input
+                  id="task-course"
+                  placeholder="e.g. Data Structures"
+                  value={linkedCourseTitle}
+                  onChange={e => setLinkedCourseTitle(e.target.value)}
+                  className="h-10 placeholder:text-muted-foreground/50"
+                />
               </div>
             )}
           </div>
+
+          {/* Notes - Hide for Self-Learning and Milestones (minimalist) */}
+          {(initialData?.sourceModule !== "self-learning") && (
+            <div className="space-y-2">
+              <Label htmlFor="task-notes" className="font-semibold text-muted-foreground">Notes</Label>
+              <Textarea
+                id="task-notes"
+                placeholder="Private notes, references, or reminders..."
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                className="resize-none min-h-[60px]"
+              />
+            </div>
+          )}
+
+          {/* Reminder Section - Hide for Self-Learning (minimalist) */}
+          {initialData?.sourceModule !== "self-learning" && (
+            <div className="space-y-2 pt-2">
+              <Label className="font-semibold">Reminder</Label>
+              <ReminderFields 
+                config={reminderConfig} 
+                onChange={(updates) => setReminderConfig({ ...reminderConfig, ...updates })}
+              />
+            </div>
+          )}
+
+          {/* Recurrence Section - Only for General Tasks */}
+          {(!initialData || initialData.sourceModule === "general") && (
+            <div className="space-y-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="recurrence" className="font-semibold cursor-pointer">Repeat Task (Recurring)</Label>
+                <input 
+                  type="checkbox" 
+                  id="recurrence"
+                  checked={recurrenceEnabled}
+                  onChange={(e) => setRecurrenceEnabled(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
+                />
+              </div>
+
+              {recurrenceEnabled && (
+                <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 animate-in slide-in-from-top-2 duration-300">
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Frequency</Label>
+                    <Select value={frequency} onValueChange={(v: any) => setFrequency(v)}>
+                      <SelectTrigger className="h-9 bg-white dark:bg-slate-950">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="daily">Daily</SelectItem>
+                        <SelectItem value="weekly">Weekly</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Every (Interval)</Label>
+                    <div className="flex items-center gap-2">
+                      <Input 
+                        type="number" 
+                        min={1} 
+                        value={interval}
+                        onChange={(e) => setInterval(parseInt(e.target.value) || 1)}
+                        className="h-9 w-16 bg-white dark:bg-slate-950"
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        {frequency === "daily" ? "days" : frequency === "weekly" ? "weeks" : "months"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
         </div>
 

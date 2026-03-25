@@ -16,13 +16,13 @@ import { Spinner } from "@/components/ui/spinner";
 import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
 
 export default function TasksPage() {
-  const { state, isLoaded, updateState } = useAppState();
+  const { state, isLoaded, updateState, saveUnifiedTask, deleteUnifiedTask } = useAppState();
   const tasks = useMemo(() => selectUnifiedTasks(state), [state]);
 
   // Dialog state
   const [formOpen, setFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskItem | null>(null);
-  const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<TaskItem | null>(null);
 
   // Filter state
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "overdue" | "all">("all");
@@ -49,41 +49,26 @@ export default function TasksPage() {
     setFormOpen(true);
   };
 
-  const handleDelete = (id: string) => {
-    setTaskToDelete(id);
+  const handleDelete = (task: TaskItem) => {
+    setTaskToDelete(task);
   };
 
   const confirmDelete = () => {
     if (taskToDelete) {
-      updateState(prev => ({
-        ...prev,
-        tasks: prev.tasks.filter(t => t.id !== taskToDelete)
-      }));
+      deleteUnifiedTask(taskToDelete);
       setTaskToDelete(null);
     }
   };
 
   const handleStatusChange = (id: string, newStatus: TaskStatus) => {
-    updateState(prev => ({
-        ...prev,
-        tasks: prev.tasks.map(t =>
-          t.id === id ? { ...t, status: newStatus, updatedAt: new Date().toISOString() } : t
-        )
-    }));
+    const task = tasks.find(t => t.id === id);
+    if (task) {
+      saveUnifiedTask({ ...task, status: newStatus, updatedAt: new Date().toISOString() });
+    }
   };
 
   const handleSaveTask = (task: TaskItem) => {
-    updateState(prev => {
-      const idx = prev.tasks.findIndex(t => t.id === task.id);
-      let updatedTasks = [];
-      if (idx >= 0) {
-        updatedTasks = [...prev.tasks];
-        updatedTasks[idx] = task;
-      } else {
-        updatedTasks = [task, ...prev.tasks];
-      }
-      return { ...prev, tasks: updatedTasks };
-    });
+    saveUnifiedTask(task);
   };
 
   if (!isLoaded) {
@@ -129,7 +114,10 @@ export default function TasksPage() {
           <TasksTable 
             tasks={displayedTasks}
             onEdit={handleEditClick}
-            onDelete={handleDelete}
+            onDelete={(id) => {
+              const task = tasks.find(t => t.id === id);
+              if (task) handleDelete(task);
+            }}
             onStatusChange={handleStatusChange}
           />
         )}
