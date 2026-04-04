@@ -7,11 +7,9 @@ import { usePathname } from "next/navigation";
 
 export default function NotFound() {
   const pathname = usePathname();
-  const isArabic = pathname?.startsWith("/ar");
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden flex items-center justify-center px-4">
-      {/* Dynamic Background Elements */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-20 dark:opacity-40">
         <div className="absolute top-[10%] left-[15%] animate-float blur-[1px]">
           <Book className="w-16 h-16 text-primary/40 rotate-12" />
@@ -42,24 +40,33 @@ export default function NotFound() {
               Lost in the Study Flow?
             </h2>
             <p className="text-xl text-muted-foreground/80 max-w-md mx-auto leading-relaxed rtl:font-arabic">
-              {isArabic 
-                ? "يبدو أنك تهت في تدفق المذاكرة. الصفحة التي تبحث عنها غير موجودة حالياً." 
-                : "It seems you've drifted off track. The page you're looking for doesn't exist in our current curriculum."}
+              {
+                "It seems you've drifted off track. The page you're looking for doesn't exist in our current curriculum."
+              }
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Button asChild size="lg" className="rounded-2xl h-14 px-8 text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-xl transition-all group">
+            <Button
+              asChild
+              size="lg"
+              className="rounded-2xl h-14 px-8 text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-xl transition-all group"
+            >
               <Link href="/dashboard" className="flex items-center gap-2">
                 <Home className="w-5 h-5 group-hover:-translate-y-0.5 transition-transform" />
-                {isArabic ? "العودة للوحة التحكم" : "Back to Dashboard"}
+                {"Back to Dashboard"}
               </Link>
             </Button>
-            
-            <Button asChild variant="outline" size="lg" className="rounded-2xl h-14 px-8 text-base font-medium border-border/60 backdrop-blur-sm bg-background/50 group">
+
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="rounded-2xl h-14 px-8 text-base font-medium border-border/60 backdrop-blur-sm bg-background/50 group"
+            >
               <Link href="/" className="flex items-center gap-2">
                 <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform rtl:rotate-180" />
-                {isArabic ? "الصفحة الرئيسية" : "Go to Homepage"}
+                {"Go to Homepage"}
               </Link>
             </Button>
           </div>

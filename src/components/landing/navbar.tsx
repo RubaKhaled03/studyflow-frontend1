@@ -6,7 +6,6 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { usePathname } from "next/navigation";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -18,8 +17,6 @@ const navLinks = [
 export function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const pathname = usePathname();
-  const isArabic = pathname.startsWith("/ar");
 
   return (
     <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-md border-b border-border">
@@ -50,16 +47,6 @@ export function Navbar() {
 
         {/* Desktop Right Side */}
         <div className="hidden md:flex items-center gap-4">
-          {/* Language */}
-          <button className="text-sm font-medium text-primary hover:text-muted-foreground  transition-colors">
-            <Link
-              href={isArabic ? "/en" : "/ar"}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              {isArabic ? "EN" : "AR"}
-            </Link>
-          </button>
-
           {/* Theme */}
           <Button
             variant="theme"

@@ -9,7 +9,7 @@ import { AcademicSettingsSection } from "@/components/settings/academic-settings
 import { NotificationSettingsSection } from "@/components/settings/notification-settings-section";
 import { AppearanceSection } from "@/components/settings/appearance-section";
 import { Button } from "@/components/ui/button";
-import { Save, CheckCircle2, LogOut, AlertCircle, RefreshCcw } from "lucide-react";
+import { Save, CheckCircle2, LogOut, RefreshCcw } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { HeaderSkeleton, ListSkeleton } from "@/components/shared/skeletons";
 import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
@@ -42,7 +42,9 @@ export default function SettingsPage() {
     setSaveSuccess(false);
   };
 
-  const handleUpdateReminders = (updates: Partial<UserProfile["reminderPreferences"]>) => {
+  const handleUpdateReminders = (
+    updates: Partial<UserProfile["reminderPreferences"]>,
+  ) => {
     if (!localProfile) return;
     setLocalProfile({
       ...localProfile,
@@ -54,7 +56,7 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     if (!localProfile) return;
-    
+
     // Validate credit hours
     const totalHours = parseInt(localProfile.totalCreditHours) || 0;
     const completedHours = parseInt(localProfile.completedCreditHours) || 0;
@@ -64,30 +66,30 @@ export default function SettingsPage() {
     }
 
     setIsSaving(true);
-    
+
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 800));
-    
+
     // Update central state
     updateState({
       userProfile: {
         ...localProfile,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       },
       // Keep academic planning total credits in sync if relevant
       academicPlanning: {
         ...state.academicPlanning,
         config: {
           ...state.academicPlanning.config,
-          totalRequiredCredits: parseInt(localProfile.totalCreditHours) || 144
-        }
-      }
+          totalRequiredCredits: parseInt(localProfile.totalCreditHours) || 144,
+        },
+      },
     });
-    
+
     setIsSaving(false);
     setSaveSuccess(true);
     setHasChanges(false);
-    
+
     // Reset success message after 3 seconds
     setTimeout(() => setSaveSuccess(false), 3000);
   };
@@ -111,7 +113,7 @@ export default function SettingsPage() {
     <div className="space-y-6 pb-8 pt-4 md:pt-6 animate-in fade-in zoom-in-95 duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <SettingsHeader />
-        
+
         <div className="flex items-center gap-3">
           {hasChanges && (
             <Button variant="ghost" onClick={handleReset} disabled={isSaving}>
@@ -119,8 +121,8 @@ export default function SettingsPage() {
               Reset
             </Button>
           )}
-          <Button 
-            onClick={handleSave} 
+          <Button
+            onClick={handleSave}
             disabled={!hasChanges || isSaving}
             className="min-w-[120px]"
           >
@@ -143,91 +145,60 @@ export default function SettingsPage() {
 
       <div className="space-y-10">
         <ProfileSection profile={localProfile} onUpdate={handleUpdateProfile} />
-        
-        <Separator />
-        
-        <AcademicSettingsSection profile={localProfile} onUpdate={handleUpdateProfile} />
-        
+
         <Separator />
 
-        <NotificationSettingsSection 
-          preferences={localProfile.reminderPreferences} 
-          onUpdate={handleUpdateReminders} 
+        <AcademicSettingsSection
+          profile={localProfile}
+          onUpdate={handleUpdateProfile}
         />
-        
+
         <Separator />
-        
+
+        <NotificationSettingsSection
+          preferences={localProfile.reminderPreferences}
+          onUpdate={handleUpdateReminders}
+        />
+
+        <Separator />
+
         <AppearanceSection />
 
         <Separator className="my-10" />
 
         {/* System Settings */}
         <section className="space-y-8">
-          <div className="flex flex-col gap-1.5">
-            <h2 className="text-xl font-extrabold text-foreground flex items-center gap-2">
-               <div className="w-1.5 h-6 bg-primary rounded-full" />
-               System Settings
-            </h2>
-            <p className="text-sm text-muted-foreground ml-3.5">General application preferences and session control.</p>
-          </div>
-          
-          <div className="ml-3.5 space-y-8 max-w-2xl">
-             {/* Language Part */}
-             <div className="space-y-4">
-                <div className="flex items-center gap-2 text-sm font-bold text-foreground/80">
-                   <div className="w-1 h-1 rounded-full bg-primary" />
-                   Interface Language
+          {/* Logout Part */}
+          <div className="pt-4 border-border/40 max-w-sm">
+            <Button
+              variant="outline"
+              onClick={() => setIsLogoutDialogOpen(true)}
+              className="h-14 w-full justify-start px-5 rounded-2xl border-border/40 hover:bg-muted/50 transition-all group relative overflow-hidden"
+            >
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors">
+                  <LogOut className="h-4.5 w-4.5 text-slate-500" />
                 </div>
-                <div className="flex p-1.5 bg-muted/30 border border-border/50 rounded-2xl w-fit gap-1">
-                   <Button 
-                     variant="ghost" 
-                     size="sm" 
-                     className="rounded-xl px-6 h-10 font-bold bg-white dark:bg-slate-900 shadow-sm border border-border/40"
-                   >
-                      English
-                   </Button>
-                   <Button 
-                     variant="ghost" 
-                     size="sm" 
-                     className="rounded-xl px-6 h-10 font-bold text-muted-foreground hover:text-foreground"
-                   >
-                      العربية
-                   </Button>
+                <div className="flex flex-col items-start translate-y-[1px]">
+                  <span className="text-sm font-bold text-foreground">
+                    Sign Out
+                  </span>
+                  <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">
+                    End current session
+                  </span>
                 </div>
-                <p className="text-[11px] text-muted-foreground italic flex items-center gap-1.5">
-                   <AlertCircle className="h-3 w-3" />
-                   RTL support and full translation are pending activation.
-                </p>
-             </div>
-
-             {/* Logout Part */}
-             <div className="pt-4 border-t border-border/40 max-w-sm">
-                <Button 
-                   variant="outline" 
-                   onClick={() => setIsLogoutDialogOpen(true)}
-                   className="h-14 w-full justify-start px-5 rounded-2xl border-border/40 hover:bg-muted/50 transition-all group relative overflow-hidden"
-                >
-                   <div className="flex items-center gap-4">
-                      <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors">
-                         <LogOut className="h-4.5 w-4.5 text-slate-500" />
-                      </div>
-                      <div className="flex flex-col items-start translate-y-[1px]">
-                         <span className="text-sm font-bold text-foreground">Sign Out</span>
-                         <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">End current session</span>
-                      </div>
-                   </div>
-                </Button>
-             </div>
+              </div>
+            </Button>
           </div>
         </section>
 
         <section className="pt-12">
           <div className="flex flex-col items-center justify-center p-6 border border-dashed border-border/60 rounded-3xl opacity-40 hover:opacity-100 transition-opacity bg-muted/5">
-             <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
-                <span>StudyFlow v2.1.0</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-primary/20" />
-                <span>Modern Academic Engine</span>
-             </div>
+            <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.3em] text-muted-foreground">
+              <span>StudyFlow v2.1.0</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-primary/20" />
+              <span>Modern Academic Engine</span>
+            </div>
           </div>
         </section>
       </div>

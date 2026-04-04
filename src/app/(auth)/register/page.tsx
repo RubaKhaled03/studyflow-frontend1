@@ -5,7 +5,8 @@ import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Register | StudyFlow",
-  description: "Create a StudyFlow account to start organizing your academic journey.",
+  description:
+    "Create a StudyFlow account to start organizing your academic journey.",
   robots: {
     index: false,
     follow: false,
@@ -55,7 +56,7 @@ export default function RegisterPage() {
                 className="flex items-center gap-3 bg-primary-foreground/10 rounded-lg p-3"
               >
                 <svg
-                  className="w-5 h-5 text-primary-foreground flex-shrink-0"
+                  className="w-5 h-5 text-primary-foreground shrink-0"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
