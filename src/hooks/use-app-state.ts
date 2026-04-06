@@ -58,12 +58,6 @@ export function useAppState() {
     setState(EMPTY_APP_STATE);
   }, []);
 
-  const loadDemoData = useCallback(async () => {
-    const { DEMO_APP_STATE } = await import("@/lib/store/demo-seed");
-    AppStore.set(DEMO_APP_STATE);
-    setState(DEMO_APP_STATE);
-  }, []);
-
   /**
    * Semesters
    */
@@ -549,7 +543,6 @@ export function useAppState() {
     isLoaded,
     updateState,
     resetApp,
-    loadDemoData,
     addSemester,
     updateSemester,
     deleteSemester,

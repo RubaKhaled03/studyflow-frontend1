@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { X, Calendar, AlertTriangle, Info } from "lucide-react";
+import { X, Calendar, AlertTriangle, Info, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CourseImageUploader } from "./course-image-uploader";
 import { CourseStatusSelector } from "./course-status-selector";
@@ -18,7 +18,6 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 interface AddCourseDialogProps {
@@ -89,14 +88,16 @@ export function AddCourseDialog({
           academicPeriod: initialData.academicPeriod || "",
         });
       } else if (!isEditing) {
+        const selectedSemester = semesters.find(s => s.id === semesterId);
         setFormData({
             ...defaultFormData,
             semesterId: semesterId || "",
             status: semesterId === "prior-completed" ? "completed" : defaultFormData.status,
+            durationWeeks: selectedSemester ? selectedSemester.weeksCount : defaultFormData.durationWeeks,
         });
       }
     }
-  }, [open, isEditing, initialData, semesterId]);
+  }, [open, isEditing, initialData, semesterId, semesters]);
 
   // Handle semester-driven week inheritance
   useEffect(() => {
@@ -351,12 +352,15 @@ export function AddCourseDialog({
                                 <Input
                                     id="durationWeeks"
                                     type="number"
-                                    disabled={!!formData.semesterId && formData.semesterId !== "prior-completed"}
+                                    readOnly={!!formData.semesterId && formData.semesterId !== "prior-completed"}
                                     value={formData.durationWeeks}
                                     onChange={(e) => setFormData({ ...formData, durationWeeks: parseInt(e.target.value) || 16 })}
+                                    className={cn(!!formData.semesterId && formData.semesterId !== "prior-completed" && "bg-muted cursor-not-allowed")}
                                 />
                                 {!!formData.semesterId && formData.semesterId !== "prior-completed" && (
-                                    <p className="text-[10px] text-muted-foreground">Inherited from semester</p>
+                                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                      <Lock className="h-3 w-3" /> Fixed for this semester
+                                    </p>
                                 )}
                             </div>
                         )}
@@ -376,6 +380,15 @@ export function AddCourseDialog({
                             <div className="p-2 border rounded-xl bg-blue-50 text-blue-700 text-sm font-medium flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-blue-500" />
                                 Prior Completed Courses
+                            </div>
+                        ) : semesterId ? (
+                             /* Locked Semester View when adding from Academic Planning */
+                            <div className="p-3 border rounded-xl bg-muted/50 text-foreground text-sm font-semibold flex items-center justify-between group">
+                                <div className="flex items-center gap-2">
+                                  <Calendar className="w-4 h-4 text-primary" />
+                                  {semesters.find(s => s.id === semesterId)?.name || "Selected Semester"}
+                                </div>
+                                <Lock className="h-4 w-4 text-muted-foreground/50" />
                             </div>
                         ) : (
                             <Select 

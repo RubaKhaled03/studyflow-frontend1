@@ -97,6 +97,14 @@ StudyFlow utilizes a **premium, glassmorphic design** with:
 - **Micro-animations**: Smooth transitions and hover effects for a delightful UX.
 - **Mobile First**: Fully responsive layout optimized for tablets and smartphones.
 
+## 🛠 Backend Integration
+
+If you are a backend developer looking to connect this frontend with **Laravel**, please refer to our detailed guides:
+
+👉 **[Backend Integration Roadmap](backend_roadmap.md)** — *API Blueprints & Database Schema*
+
+👉 **[Frontend Handover Guide](frontend_handover.md)** — *Architecture, Hooks & State Management*
+
 ---
 
 <div align="center">
