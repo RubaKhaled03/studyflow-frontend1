@@ -70,24 +70,40 @@ export function Navbar() {
           </Button>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden p-2"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          {mobileMenuOpen ? (
-            <X className="h-6 w-6" />
-          ) : (
-            <Menu className="h-6 w-6" />
-          )}
-        </button>
+        {/* Mobile Controls */}
+        <div className="flex md:hidden items-center gap-1">
+          <Button
+            variant="theme"
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "dark" ? (
+              <Sun className="h-5 w-5" />
+            ) : (
+              <Moon className="h-5 w-5" />
+            )}
+          </Button>
+
+          <button
+            className="p-2"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <X className="h-6 w-6" />
+            ) : (
+              <Menu className="h-6 w-6" />
+            )}
+          </button>
+        </div>
       </nav>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-card border-b border-border">
+           
           <div className="container mx-auto px-4 py-4 flex flex-col gap-4">
+             
             {navLinks.map((link) => (
               <a
                 key={link.href}
@@ -99,24 +115,7 @@ export function Navbar() {
               </a>
             ))}
 
-            {/* Settings (Language + Theme) */}
-            <div className="flex items-center gap-4 pt-4 border-t border-border">
-              <button className="text-sm font-medium text-muted-foreground hover:text-foreground">
-                EN
-              </button>
-              {/* Theme */}
-              <Button
-                variant="theme"
-                size="icon"
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              >
-                {theme === "dark" ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                )}
-              </Button>
-            </div>
+         
 
             {/* Auth */}
             <div className="flex flex-col gap-2 pt-4 border-t border-border">
