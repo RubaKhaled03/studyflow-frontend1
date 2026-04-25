@@ -156,6 +156,24 @@ export default function CourseDetailsPage() {
     });
   };
 
+  const handleExamComplete = (weekNumber: number, examId: string, completed: boolean) => {
+    if (!course) return;
+
+    const fullPlan = getFullWeeklyPlan(course);
+    const updatedWeeklyPlan = fullPlan.map(w => {
+      if (w.weekNumber !== weekNumber) return w;
+      return {
+        ...w,
+        exams: w.exams.map(e => e.id === examId ? { ...e, completed } : e)
+      };
+    });
+
+    updateCourse({
+      ...course,
+      weeklyPlan: updatedWeeklyPlan
+    });
+  };
+
   // Handler: resource changes (add/delete)
   const handleResourcesChange = (resources: Resource[]) => {
     if (!course) return;
@@ -212,6 +230,7 @@ export default function CourseDetailsPage() {
                 onAddItem={handleAddItem}
                 onWeekComplete={handleWeekComplete}
                 onAssignmentStatusChange={handleAssignmentStatusChange}
+                onExamComplete={handleExamComplete}
               />
             </div>
           </div>

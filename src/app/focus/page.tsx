@@ -365,7 +365,7 @@ export default function FocusPage() {
               ) : (
                 <Button
                   size="lg"
-                  className="h-14 w-full max-w-md text-lg font-semibold hover:bg-blue-600"
+                  className="h-14 w-full max-w-md text-lg font-semibold hover:primary"
                   onClick={start}
                 >
                   {state === "paused" ? "RESUME" : "START"}

@@ -38,22 +38,26 @@ export function Breadcrumbs() {
           .replace(/^\w/, (c) => c.toUpperCase());
 
         // Resolve dynamic titles for IDs
+        const parentAsCourse = courses.find(c => c.id === parentSegment);
+        
         if (parentSegment === "courses") {
           const course = courses.find(c => c.id === segment);
           if (course) label = course.title;
+        } else if (parentAsCourse) {
+          // If the parent is a course ID, this segment might be an exam ID
+          const ex = parentAsCourse.exams?.find(e => e.id === segment);
+          if (ex) {
+            label = ex.title;
+          } else {
+            // Check weekly plan
+            for (const w of parentAsCourse.weeklyPlan ?? []) {
+              const exW = w.exams.find(e => e.id === segment);
+              if (exW) { label = exW.title; break; }
+            }
+          }
         } else if (parentSegment === "self-learning") {
           const plan = selfLearningPlans.find(p => p.id === segment);
           if (plan) label = plan.title;
-        } else if (parentSegment === "exam") {
-          const examId = segment;
-          for (const c of courses) {
-             const ex = c.exams?.find(e => e.id === examId);
-             if (ex) { label = ex.title; break; }
-             for (const w of c.weeklyPlan ?? []) {
-                const exW = w.exams.find(e => e.id === examId);
-                if (exW) { label = exW.title; break; }
-             }
-          }
         }
 
         return (

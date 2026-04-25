@@ -36,7 +36,7 @@ export function SessionTabs({
           className={cn(
             "flex items-center gap-2 border-b-2 pb-2 text-sm font-medium transition-colors",
             activeSession === tab.id
-              ? "border-blue-500 text-blue-600"
+              ? "border-primary/50 text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
           )}
         >
@@ -44,7 +44,7 @@ export function SessionTabs({
           <span
             className={cn(
               "text-xs",
-              activeSession === tab.id ? "text-blue-500" : "text-muted-foreground"
+              activeSession === tab.id ? "text-primary" : "text-muted-foreground"
             )}
           >
             {tab.count}

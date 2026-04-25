@@ -238,7 +238,7 @@ export function SettingsPanel({
               <p className="text-sm text-muted-foreground mb-1">
                 Total Challenge
               </p>
-              <p className="font-semibold text-lg text-blue-600">
+              <p className="font-semibold text-lg text-primary">
                 {formatMinutes(challengeHours * 60 + challengeMinutes)}
               </p>
             </div>

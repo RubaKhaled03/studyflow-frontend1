@@ -38,7 +38,7 @@ export function ChallengeBar({
   return (
     <div className={cn("text-center space-y-2", className)}>
       <p className="text-sm">
-        <span className="text-blue-500 font-medium">
+        <span className="text-primary font-medium">
           {formatMinutes(displayedRemainingMinutes)}
         </span>
         <span className="text-muted-foreground"> remaining / challenge </span>
@@ -54,7 +54,7 @@ export function ChallengeBar({
               className={cn(
                 "size-2 rounded-sm",
                 (i / 10) * 100 < progress
-                  ? "bg-blue-600"
+                  ? "bg-primary"
                   : "bg-muted-foreground/20",
               )}
             />

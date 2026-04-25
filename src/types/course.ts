@@ -99,6 +99,8 @@ export interface Exam {
   duration: number;
   location?: string;
   reminderConfig?: ReminderConfig;
+  completed?: boolean;
+  grade?: string;
 }
 
 export interface Resource {

@@ -26,9 +26,18 @@ interface WeeklyTimelineProps {
   onAddItem?: (weekNumber: number, type: ItemType, item: StudyTask | Assignment | Exam) => void;
   onWeekComplete?: (weekNumber: number) => void;
   onAssignmentStatusChange?: (weekNumber: number, assignmentId: string, newStatus: Assignment["status"]) => void;
+  onExamComplete?: (weekNumber: number, examId: string, completed: boolean) => void;
 }
 
-export function WeeklyTimeline({ weeks, courseId, onTaskComplete, onAddItem, onWeekComplete, onAssignmentStatusChange }: WeeklyTimelineProps) {
+export function WeeklyTimeline({ 
+  weeks, 
+  courseId, 
+  onTaskComplete, 
+  onAddItem, 
+  onWeekComplete, 
+  onAssignmentStatusChange,
+  onExamComplete
+}: WeeklyTimelineProps) {
   // Determine the "current" week based on the first uncompleted week
   const currentWeek = weeks.find((w) => !w.completed)?.weekNumber || weeks.length;
 
@@ -85,7 +94,7 @@ export function WeeklyTimeline({ weeks, courseId, onTaskComplete, onAddItem, onW
 
   const openExamMode = (examId: string) => {
     if (courseId) {
-      router.push(`/courses/${courseId}/exam/${examId}`);
+      router.push(`/courses/${courseId}/${examId}`);
     }
   };
 
@@ -308,52 +317,74 @@ export function WeeklyTimeline({ weeks, courseId, onTaskComplete, onAddItem, onW
                         Exams & Quizzes
                       </h4>
                       <div className="space-y-2 ml-6">
-                        {week.exams.map((exam) => (
-                          <div
-                            key={exam.id}
-                            className={cn(
-                              "p-4 rounded-lg border",
-                              isCompleted ? "opacity-75 bg-slate-50 dark:bg-slate-800/20 border-slate-200 dark:border-slate-800" : "border-red-200 dark:border-red-800/50 bg-red-50/50 dark:bg-red-900/10"
-                            )}
-                          >
-                            <div className="flex items-start justify-between gap-4">
-                              <div className="flex-1 min-w-0">
-                                <h5 className="font-semibold text-slate-900 dark:text-white text-sm">{exam.title}</h5>
-                                <div className="flex flex-wrap items-center gap-3 mt-2.5 text-xs text-slate-600 dark:text-slate-400">
-                                  <span className="flex items-center gap-1.5 font-medium">
-                                    <Clock className="h-3.5 w-3.5 text-slate-400" />{exam.time}
-                                  </span>
-                                  <span className="px-2 py-0.5 bg-slate-200/50 dark:bg-slate-700/50 rounded-md font-medium text-slate-700 dark:text-slate-300">
-                                    {exam.duration} min
-                                  </span>
-                                  {exam.location && (
-                                    <span className="flex items-center gap-1.5 font-medium">
-                                      <MapPin className="h-3.5 w-3.5 text-slate-400" />{exam.location}
-                                    </span>
-                                  )}
+                        {week.exams.map((exam) => {
+                          const isPast = new Date(exam.date).getTime() < new Date().setHours(0, 0, 0, 0);
+                          // Default to isPast if 'completed' hasn't been set yet
+                          const isCompleted = exam.completed !== undefined ? exam.completed : isPast;
+
+                          return (
+                            <div
+                              key={exam.id}
+                              className={cn(
+                                "p-4 rounded-lg border",
+                                isCompleted || isCompleted 
+                                  ? "opacity-75 bg-slate-50 dark:bg-slate-800/20 border-slate-200 dark:border-slate-800" 
+                                  : "border-red-200 dark:border-red-800/50 bg-red-50/50 dark:bg-red-900/10"
+                              )}
+                            >
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex items-start gap-3 flex-1 min-w-0">
+                                  <Checkbox
+                                    checked={isCompleted}
+                                    onCheckedChange={(checked) => {
+                                      onExamComplete?.(week.weekNumber, exam.id, checked === true);
+                                    }}
+                                    className="mt-1"
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <h5 className={cn(
+                                      "font-semibold text-sm transition-all",
+                                      isCompleted ? "text-slate-500 line-through" : "text-slate-900 dark:text-white"
+                                    )}>
+                                      {exam.title}
+                                    </h5>
+                                    <div className="flex flex-wrap items-center gap-3 mt-2.5 text-xs text-slate-600 dark:text-slate-400">
+                                      <span className="flex items-center gap-1.5 font-medium">
+                                        <Clock className="h-3.5 w-3.5 text-slate-400" />{exam.time}
+                                      </span>
+                                      <span className="px-2 py-0.5 bg-slate-200/50 dark:bg-slate-700/50 rounded-md font-medium text-slate-700 dark:text-slate-300">
+                                        {exam.duration} min
+                                      </span>
+                                      {exam.location && (
+                                        <span className="flex items-center gap-1.5 font-medium">
+                                          <MapPin className="h-3.5 w-3.5 text-slate-400" />{exam.location}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-2.5">Date: {formatDate(exam.date)}</p>
+                                  </div>
                                 </div>
-                                <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-2.5">Date: {formatDate(exam.date)}</p>
-                              </div>
-                              <div className="flex flex-col items-end gap-2.5 shrink-0">
-                                {courseId && (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className={cn(
-                                      "shrink-0 gap-1.5 text-xs",
-                                      isCompleted ? "border-slate-200 dark:border-slate-700" : "border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-700 dark:text-red-400"
-                                    )}
-                                    onClick={() => openExamMode(exam.id)}
-                                  >
-                                    <GraduationCap className="w-3.5 h-3.5" />
-                                    Prepare
-                                  </Button>
-                                )}
-                                <ReminderBadge config={exam.reminderConfig} variant="outline" />
+                                <div className="flex flex-col items-end gap-2.5 shrink-0">
+                                  {courseId && (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className={cn(
+                                        "shrink-0 gap-1.5 text-xs",
+                                        isCompleted ? "border-slate-200 dark:border-slate-700" : "border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-700 dark:text-red-400"
+                                      )}
+                                      onClick={() => openExamMode(exam.id)}
+                                    >
+                                      <GraduationCap className="w-3.5 h-3.5" />
+                                      Prepare
+                                    </Button>
+                                  )}
+                                  <ReminderBadge config={exam.reminderConfig} variant="outline" />
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   )}

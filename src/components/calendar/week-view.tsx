@@ -45,7 +45,7 @@ export function WeekView({ events, currentDate, onEventClick }: WeekViewProps) {
   return (
     <div className="bg-white dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
       {/* Weekday headers */}
-      <div className="grid grid-cols-8 sticky top-0 z-20 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
+      <div className="grid grid-cols-8 sticky  z-10 bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
         <div className="col-span-1 px-2 py-3 text-xs font-semibold text-slate-600 dark:text-slate-400">
           Time
         </div>

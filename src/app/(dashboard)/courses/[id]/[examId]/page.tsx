@@ -79,7 +79,7 @@ export default function ExamModePage() {
   const courseId = params.id as string;
   const examId = params.examId as string;
 
-  const { isLoaded: stateLoaded, courses } = useAppState();
+  const { isLoaded: stateLoaded, courses, updateCourse } = useAppState();
 
   const [course, setCourse] = useState<Course | null>(null);
   const [exam, setExam] = useState<Exam | null>(null);
@@ -131,6 +131,25 @@ export default function ExamModePage() {
     if (!newTopicTitle.trim() || !examState) return;
     setExamState(addTopic(examState, newTopicTitle));
     setNewTopicTitle("");
+  };
+
+  const handleToggleExamCompletion = () => {
+    if (!course || !exam) return;
+
+    const newCompleted = !exam.completed;
+    
+    const updatedWeeklyPlan = course.weeklyPlan?.map(w => ({
+      ...w,
+      exams: w.exams.map(e => e.id === examId ? { ...e, completed: newCompleted } : e)
+    }));
+
+    const updatedTopExams = course.exams?.map(e => e.id === examId ? { ...e, completed: newCompleted } : e);
+
+    updateCourse({
+      ...course,
+      weeklyPlan: updatedWeeklyPlan,
+      exams: updatedTopExams
+    });
   };
 
   const countdown = useCountdown(exam?.date, exam?.time);
@@ -205,6 +224,27 @@ export default function ExamModePage() {
               >
                 Exam Mode
               </Badge>
+              <Button
+                variant={exam.completed ? "default" : "outline"}
+                size="sm"
+                onClick={handleToggleExamCompletion}
+                className={cn(
+                  "ml-auto gap-2 transition-all",
+                  exam.completed 
+                    ? "bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600" 
+                    : "border-slate-200 dark:border-slate-800"
+                )}
+              >
+                {exam.completed ? (
+                  <>
+                    <CheckCircle2 className="h-4 w-4" /> Completed
+                  </>
+                ) : (
+                  <>
+                    <Circle className="h-4 w-4" /> Mark as Done
+                  </>
+                )}
+              </Button>
             </h1>
           </div>
         </div>
@@ -380,70 +420,6 @@ export default function ExamModePage() {
               </CardContent>
             </Card>
           </div>
-
-          {/* Study Tools + Tips (1/3) */}
-          <div className="space-y-4">
-            <Card className="border-border/60 shadow-sm">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Quick Study Tools
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {[
-                  {
-                    label: "Summary",
-                    icon: "📄",
-                    color: "hover:bg-blue-50 dark:hover:bg-blue-900/20",
-                  },
-                  {
-                    label: "Flashcards",
-                    icon: "🗂️",
-                    color: "hover:bg-purple-50 dark:hover:bg-purple-900/20",
-                  },
-                  {
-                    label: "AI Quiz",
-                    icon: "🤖",
-                    color: "hover:bg-amber-50 dark:hover:bg-amber-900/20",
-                  },
-                  {
-                    label: "Review Notes",
-                    icon: "📝",
-                    color: "hover:bg-emerald-50 dark:hover:bg-emerald-900/20",
-                  },
-                ].map((tool) => (
-                  <button
-                    key={tool.label}
-                    className={cn(
-                      "w-full text-left flex items-center gap-3 p-3 rounded-xl border border-border/60 transition-colors text-sm font-medium text-foreground",
-                      tool.color,
-                    )}
-                  >
-                    <span className="text-lg">{tool.icon}</span>
-                    {tool.label}
-                    <span className="ml-auto text-xs text-muted-foreground">
-                      Coming soon
-                    </span>
-                  </button>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Motivational tip */}
-            <Card className="border-border/60 shadow-sm bg-gradient-to-br from-primary/5 to-blue-500/5">
-              <CardContent className="pt-5">
-                <div className="flex gap-3 items-start">
-                  <Lightbulb className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Spaced repetition works best. Review your topics over
-                    multiple sessions rather than cramming the night before.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
         {/* ── Related Resources ── */}
         {resources.length > 0 && (
           <Card className="border-border/60 shadow-sm">
@@ -481,6 +457,7 @@ export default function ExamModePage() {
           </Card>
         )}
       </div>
+    </div>
     </div>
   );
 }
