@@ -42,13 +42,13 @@ export function SemesterCard({
   return (
     <Card className="flex flex-col h-full border-border/60 shadow-sm overflow-hidden hover:shadow-md transition-shadow bg-card">
       <CardHeader className="pb-4 border-b bg-muted/10">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="p-1.5 bg-background border rounded-md shadow-sm">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-1 min-w-0 flex-1">
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="p-1.5 bg-background border rounded-md shadow-sm shrink-0">
                 <CalendarDays className="w-4 h-4 text-muted-foreground" />
               </div>
-              <CardTitle className="text-xl font-semibold tracking-tight text-foreground">
+              <CardTitle className="text-xl font-semibold tracking-tight text-foreground break-all min-w-0">
                 {semester.name}
               </CardTitle>
               {renderStatus()}
@@ -73,7 +73,7 @@ export function SemesterCard({
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:bg-muted">
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:bg-muted shrink-0">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

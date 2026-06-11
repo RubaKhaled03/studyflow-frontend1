@@ -1,11 +1,11 @@
 import { ReminderConfig } from "./reminders";
 
-export type TaskType = 
-  | "general" 
-  | "study-task" 
-  | "assignment" 
-  | "quiz" 
-  | "exam" 
+export type TaskType =
+  | "general"
+  | "study-task"
+  | "assignment"
+  | "quiz"
+  | "exam"
   | "self-learning-milestone";
 
 export type TaskPriority = "high" | "medium" | "low";
@@ -25,7 +25,7 @@ export interface TaskItem {
   description?: string;
   type: TaskType;
   sourceModule: TaskSourceModule;
-  
+
   // Linkages for deep integration where possible
   linkedCourseId?: string;
   linkedCourseTitle?: string;
@@ -33,18 +33,20 @@ export interface TaskItem {
   linkedWeekLabel?: string;
   linkedLearningPlanId?: string;
   linkedLearningPlanTitle?: string;
-  
+
   // Timing
   dueDate?: string; // YYYY-MM-DD
   dueTime?: string; // HH:mm
-  
+
   priority: TaskPriority;
   status: TaskStatus;
+  previousStatus?: TaskStatus; // Track status before "done" for restoration
   recurrence?: RecurrenceConfig;
+  savedRecurrence?: RecurrenceConfig; // Preserve recurrence settings when toggled off
   reminder?: boolean;
   reminderConfig?: ReminderConfig;
   notes?: string;
-  
+
   createdAt: string;
   updatedAt: string;
 }

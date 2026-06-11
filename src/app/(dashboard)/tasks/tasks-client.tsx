@@ -24,16 +24,27 @@ export default function TasksClient() {
   const [taskToDelete, setTaskToDelete] = useState<TaskItem | null>(null);
 
   // Filter state
-  const [statusFilter, setStatusFilter] = useState<TaskStatus | "overdue" | "all">("all");
-  const [priorityFilter, setPriorityFilter] = useState<TaskPriority | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<
+    TaskStatus | "overdue" | "all"
+  >("all");
+  const [priorityFilter, setPriorityFilter] = useState<TaskPriority | "all">(
+    "all",
+  );
   const [typeFilter, setTypeFilter] = useState<TaskType | "all">("all");
-  const [sortBy, setSortBy] = useState<"nearest-date" | "priority" | "newest" | "oldest">("nearest-date");
+  const [sortBy, setSortBy] = useState<
+    "nearest-date" | "priority" | "newest" | "oldest"
+  >("nearest-date");
 
   // Derived data
   const stats = useMemo(() => getTaskStats(tasks), [tasks]);
-  
+
   const displayedTasks = useMemo(() => {
-    const filtered = filterTasks(tasks, statusFilter, priorityFilter, typeFilter);
+    const filtered = filterTasks(
+      tasks,
+      statusFilter,
+      priorityFilter,
+      typeFilter,
+    );
     return sortTasks(filtered, sortBy);
   }, [tasks, statusFilter, priorityFilter, typeFilter, sortBy]);
 
@@ -60,9 +71,23 @@ export default function TasksClient() {
   };
 
   const handleStatusChange = (id: string, newStatus: TaskStatus) => {
-    const task = tasks.find(t => t.id === id);
+    const task = tasks.find((t) => t.id === id);
     if (task) {
-      saveUnifiedTask({ ...task, status: newStatus, updatedAt: new Date().toISOString() });
+      const updatedTask = {
+        ...task,
+        status: newStatus,
+        updatedAt: new Date().toISOString(),
+      };
+
+      // When marking as done, save the current status to restore later
+      if (newStatus === "done" && task.status !== "done") {
+        updatedTask.previousStatus = task.status;
+      } else {
+        // Clear previousStatus when moving away from done or changing status normally
+        updatedTask.previousStatus = undefined;
+      }
+
+      saveUnifiedTask(updatedTask);
     }
   };
 
@@ -80,20 +105,22 @@ export default function TasksClient() {
   }
 
   return (
-    <div className="space-y-6 pb-8 animate-in fade-in zoom-in-95 duration-500">      
+    <div className="space-y-6 pb-8 animate-in fade-in zoom-in-95 duration-500">
       <TasksHeader onAddTask={handleAddClick} />
 
-      {tasks.length > 0 && (
-        <TasksStats stats={stats} />
-      )}
+      {tasks.length > 0 && <TasksStats stats={stats} />}
 
       <section className="space-y-5">
         {tasks.length > 0 && (
           <TasksFilters
-            statusFilter={statusFilter} setStatusFilter={setStatusFilter}
-            priorityFilter={priorityFilter} setPriorityFilter={setPriorityFilter}
-            typeFilter={typeFilter} setTypeFilter={setTypeFilter}
-            sortBy={sortBy} setSortBy={setSortBy}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            priorityFilter={priorityFilter}
+            setPriorityFilter={setPriorityFilter}
+            typeFilter={typeFilter}
+            setTypeFilter={setTypeFilter}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
           />
         )}
 
@@ -103,18 +130,22 @@ export default function TasksClient() {
           <div className="text-center py-16 border border-dashed rounded-2xl border-border/60 text-muted-foreground bg-muted/20">
             <p>No tasks match your current filters.</p>
             <button
-              onClick={() => { setStatusFilter("all"); setPriorityFilter("all"); setTypeFilter("all"); }}
+              onClick={() => {
+                setStatusFilter("all");
+                setPriorityFilter("all");
+                setTypeFilter("all");
+              }}
               className="mt-2 text-primary font-medium hover:underline text-sm"
             >
               Clear Filters
             </button>
           </div>
         ) : (
-          <TasksTable 
+          <TasksTable
             tasks={displayedTasks}
             onEdit={handleEditClick}
             onDelete={(id) => {
-              const task = tasks.find(t => t.id === id);
+              const task = tasks.find((t) => t.id === id);
               if (task) handleDelete(task);
             }}
             onStatusChange={handleStatusChange}

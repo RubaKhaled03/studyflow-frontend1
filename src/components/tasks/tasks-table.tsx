@@ -93,28 +93,33 @@ export function TasksTable({ tasks, onEdit, onDelete, onStatusChange }: TasksTab
                   <Checkbox 
                     checked={task.status === "done"}
                     onCheckedChange={(checked) => 
-                      onStatusChange(task.id, checked ? "done" : "todo")
+                      onStatusChange(task.id, checked ? "done" : (task.previousStatus || "todo"))
                     }
                   />
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex flex-col">
-                    <span className={cn(
-                      "font-medium text-slate-900 dark:text-white transition-all",
-                      task.status === "done" && "line-through text-muted-foreground"
-                    )}>
-                      {task.title}
+                  <div className="flex flex-col min-w-0 max-w-[160px] sm:max-w-[240px] md:max-w-[320px] lg:max-w-[420px]">
+                    <div className="flex items-start gap-1.5 min-w-0">
+                      <span 
+                        className={cn(
+                          "font-medium text-slate-900 dark:text-white transition-all line-clamp-2 break-all flex-1",
+                          task.status === "done" && "line-through text-muted-foreground"
+                        )}
+                        title={task.title}
+                      >
+                        {task.title}
+                      </span>
                       {task.recurrence && (
-                        <RefreshCw className="inline-block mr-1.5 h-3 w-3 text-blue-500 animate-spin-slow" />
+                        <RefreshCw className="h-3.5 w-3.5 text-blue-500 animate-spin-slow shrink-0 mt-0.5" />
                       )}
-                    </span>
+                    </div>
                     {task.linkedCourseTitle && (
-                      <span className="text-[10px] text-muted-foreground mt-0.5 font-medium uppercase tracking-wider">
+                      <span className="text-[10px] text-muted-foreground mt-0.5 font-medium uppercase tracking-wider truncate" title={task.linkedCourseTitle}>
                         {task.linkedCourseTitle}
                       </span>
                     )}
                     {task.linkedLearningPlanTitle && (
-                      <span className="text-[10px] text-muted-foreground mt-0.5 font-medium uppercase tracking-wider">
+                      <span className="text-[10px] text-muted-foreground mt-0.5 font-medium uppercase tracking-wider truncate" title={task.linkedLearningPlanTitle}>
                         {task.linkedLearningPlanTitle}
                       </span>
                     )}
