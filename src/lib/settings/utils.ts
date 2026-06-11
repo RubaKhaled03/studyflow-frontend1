@@ -31,40 +31,9 @@ export const getDefaultProfile = (): UserProfile => ({
 });
 
 export const loadProfile = (): UserProfile => {
-  if (typeof window === "undefined") return getDefaultProfile();
-  
-  const storedData = localStorage.getItem(STORAGE_KEY);
-  if (!storedData) return getDefaultProfile();
-  
-  try {
-    const profile = JSON.parse(storedData);
-    // Merge with defaults to ensure all fields exist
-    return {
-      ...getDefaultProfile(),
-      ...profile,
-      // Ensure nested objects are also merged
-      focusPreferences: {
-        ...getDefaultProfile().focusPreferences,
-        ...(profile.focusPreferences || {}),
-      },
-      reminderPreferences: {
-        ...getDefaultProfile().reminderPreferences,
-        ...(profile.reminderPreferences || {}),
-      },
-    };
-  } catch (error) {
-    console.error("Error loading profile:", error);
-    return getDefaultProfile();
-  }
+  return getDefaultProfile();
 };
 
 export const saveProfile = (profile: UserProfile): void => {
-  if (typeof window === "undefined") return;
-  
-  const updatedProfile = {
-    ...profile,
-    updatedAt: new Date().toISOString(),
-  };
-  
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedProfile));
+  // Data should be handled by backend
 };

@@ -43,12 +43,6 @@ export function CalendarHeader({
                 Manage and track all your academic courses.
               </p>
             </div>
-            <div className="flex w-full md:w-auto shrink-0">
-              <Button onClick={onAddEvent} className="w-full sm:w-auto shadow-sm" size="lg">
-                <Plus className="mr-2 h-5 w-5" />
-                Add Event
-              </Button>
-            </div>
           </div>
         {/* Bottom Row: Navigation and View Options */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-5">

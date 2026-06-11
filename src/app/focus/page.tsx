@@ -45,36 +45,10 @@ const DEFAULT_CHALLENGE: StoredChallenge = {
 };
 
 function getStoredSettings(): StoredSettings {
-  if (typeof window === "undefined") {
-    return DEFAULT_SETTINGS;
-  }
-
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch {
-    // ignore localStorage / JSON errors
-  }
-
   return DEFAULT_SETTINGS;
 }
 
 function getStoredChallenge(): StoredChallenge {
-  if (typeof window === "undefined") {
-    return DEFAULT_CHALLENGE;
-  }
-
-  try {
-    const stored = localStorage.getItem(CHALLENGE_STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch {
-    // ignore localStorage / JSON errors
-  }
-
   return DEFAULT_CHALLENGE;
 }
 
@@ -192,32 +166,16 @@ export default function FocusPage() {
     onComplete: handleTimerComplete,
   });
 
-  // Save settings to localStorage
+  // Save settings to backend (to be implemented)
   useEffect(() => {
     if (!mounted) return;
-
-    try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ selectedLevel, customSettings }),
-      );
-    } catch {
-      // ignore localStorage errors
-    }
+    // Data should be handled by backend
   }, [selectedLevel, customSettings, mounted]);
 
-  // Save challenge settings to localStorage
+  // Save challenge settings to backend (to be implemented)
   useEffect(() => {
     if (!mounted) return;
-
-    try {
-      localStorage.setItem(
-        CHALLENGE_STORAGE_KEY,
-        JSON.stringify({ hours: challengeHours, minutes: challengeMinutes }),
-      );
-    } catch {
-      // ignore localStorage errors
-    }
+    // Data should be handled by backend
   }, [challengeHours, challengeMinutes, mounted]);
 
   // Update timer when session or settings change

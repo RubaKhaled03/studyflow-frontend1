@@ -23,8 +23,7 @@ export default function SettingsPage() {
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem("studyflow_setup_complete");
-    localStorage.removeItem("studyflow_user_data");
+    // Data should be handled by backend
     window.location.href = "/";
   };
 

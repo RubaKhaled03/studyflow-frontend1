@@ -47,8 +47,6 @@ export function DashboardSidebar() {
   const user = state.userProfile;
 
   const handleLogout = () => {
-    localStorage.removeItem("studyflow_setup_complete");
-    localStorage.removeItem("studyflow_user_data");
     window.location.href = "/";
   };
 

@@ -9,18 +9,11 @@ export function generatePlanId(): string {
 }
 
 export function loadPlans(): LearningPlan[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+  return [];
 }
 
 export function savePlans(plans: LearningPlan[]): void {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(LS_KEY, JSON.stringify(plans));
+  // Data should be handled by backend
 }
 
 /** Progress based on completed stages / total stages */

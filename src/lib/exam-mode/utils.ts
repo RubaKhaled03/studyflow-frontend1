@@ -9,18 +9,11 @@ function generateId(): string {
 }
 
 function loadAllStates(): Record<string, ExamModeState> {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
+  return {};
 }
 
 function saveAllStates(states: Record<string, ExamModeState>): void {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(LS_KEY, JSON.stringify(states));
+  // Data should be handled by backend
 }
 
 export function getExamModeState(courseId: string, examId: string): ExamModeState {
