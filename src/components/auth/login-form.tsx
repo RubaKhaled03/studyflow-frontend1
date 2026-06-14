@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { AuthService } from "@/services/auth.service"
 
 export function LoginForm() {
   const router = useRouter()
@@ -22,12 +23,16 @@ export function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    
-    // Simulate login - in production, this would call an API
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // Direct existing users to the dashboard
-    router.push("/dashboard")
+    try {
+  await AuthService.login(formData)
+  router.push("/dashboard")
+} catch (err) {
+  console.error("Login failed:", err)
+  alert("البريد الإلكتروني أو كلمة المرور غلط")
+} finally {
+  setIsLoading(false)
+}
+   
   }
 
   return (
