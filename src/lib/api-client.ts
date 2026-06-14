@@ -22,9 +22,10 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 
   // Define default headers
   const defaultHeaders: Record<string, string> = {
-    "Content-Type": "application/json",
-    ...headers,
-  };
+      "Content-Type": "application/json",
+       "Accept": "application/json",
+        ...headers,
+     };
 
   // Get auth token from localStorage if it exists
   const token = typeof window !== "undefined" ? localStorage.getItem("studyflow_auth_token") : null;

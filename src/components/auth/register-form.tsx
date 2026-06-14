@@ -38,32 +38,33 @@ export function RegisterForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (!validateForm()) return;
+  if (!validateForm()) return;
 
-    setIsLoading(true);
+  setIsLoading(true);
 
-    // Simulate registration - in production, this would call an API
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // CRITICAL: Ensure a clean state for the new student
-    const { AppStore } = await import("@/lib/store/app-store");
-    AppStore.clearAll();
-
-    // Persist the name for the setup/onboarding flow
-    AppStore.update(state => ({
-      ...state,
-      userProfile: {
-        ...state.userProfile,
-        name: formData.name
-      }
-    }));
-
-    // Redirect to setup page for first-time users
+  try {
+    const { AuthService } = await import("@/services/auth.service");
+    await AuthService.register({
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      password_confirmation: formData.confirmPassword,
+    });
     router.push("/setup");
-  };
+  } catch (err: unknown) {
+    const error = err as { message?: string };
+    if (error.message?.includes("already been taken")) {
+      setErrors({ email: "هذا البريد الإلكتروني مسجل مسبقاً" });
+    } else {
+      setErrors({ email: "حدث خطأ، حاولي مرة ثانية" });
+    }
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -91,6 +92,9 @@ export function RegisterForm() {
           required
           className="h-11"
         />
+        {errors.email && (
+            <p className="text-sm text-destructive">{errors.email}</p>
+           )}
       </div>
 
       <div className="space-y-2">
