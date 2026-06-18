@@ -20,27 +20,41 @@ function keepStreakAlive(state: AppState): AppState {
   const hasToday = activeDays.includes(today);
   const newActiveDays = hasToday ? activeDays : [...activeDays, today];
 
+  let newState = state;
+
   if (lastActive === today && (state.streak?.currentCount || 0) > 0) {
     if (hasToday) return state;
-    return { ...state, streak: { ...state.streak, activeDays: newActiveDays } };
+    newState = { ...state, streak: { ...state.streak, activeDays: newActiveDays } };
+  } else {
+    const yesterdayDate = new Date(now);
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterday = `${yesterdayDate.getFullYear()}-${String(yesterdayDate.getMonth() + 1).padStart(2, "0")}-${String(yesterdayDate.getDate()).padStart(2, "0")}`;
+    const currentCount = state.streak?.currentCount || 0;
+    const longestCount = state.streak?.longestCount || 0;
+    const newCount = lastActive === yesterday ? currentCount + 1 : 1;
+
+    newState = {
+      ...state,
+      streak: {
+        currentCount: newCount,
+        longestCount: Math.max(longestCount, newCount),
+        lastActiveDate: today,
+        activeDays: newActiveDays,
+      },
+    };
   }
 
-  const yesterdayDate = new Date(now);
-  yesterdayDate.setDate(yesterdayDate.getDate() - 1);
-  const yesterday = `${yesterdayDate.getFullYear()}-${String(yesterdayDate.getMonth() + 1).padStart(2, "0")}-${String(yesterdayDate.getDate()).padStart(2, "0")}`;
-  const currentCount = state.streak?.currentCount || 0;
-  const longestCount = state.streak?.longestCount || 0;
-  const newCount = lastActive === yesterday ? currentCount + 1 : 1;
+  persistStreak(newState.streak);
+  return newState;
+}
 
-  return {
-    ...state,
-    streak: {
-      currentCount: newCount,
-      longestCount: Math.max(longestCount, newCount),
-      lastActiveDate: today,
-      activeDays: newActiveDays,
-    },
-  };
+async function persistStreak(streak: any) {
+  try {
+    const { apiClient } = await import("@/lib/api-client");
+    await apiClient.post("/auth/streak", streak);
+  } catch (err) {
+    console.error("Failed to persist streak", err);
+  }
 }
 
 function syncSemesterStatus(state: AppState, semesterId?: string): AppState {
@@ -110,7 +124,19 @@ export function useAppState() {
         .catch((err) => {
           console.error("Failed to load data from backend:", err);
         })
-        .finally(() => {
+        .finally(async () => {
+          try {
+            const { AuthService } = await import("@/services/auth.service");
+            const profile = await AuthService.getProfile();
+            if (profile?.streak) {
+              AppStore.update((prev) => ({
+                ...prev,
+                streak: profile.streak,
+              }));
+            }
+          } catch (err) {
+            console.error("Failed to load streak", err);
+          }
           setState(AppStore.get());
           setIsLoaded(true);
         });
@@ -273,73 +299,72 @@ export function useAppState() {
   // ─── Unified Task Save/Delete ────────────────────────────────────────────────
 
   const saveUnifiedTask = useCallback(async (task: TaskItem) => {
-  // Tasks مرتبطة بـ self-learning — تحفظ في memory بس
-  if (task.sourceModule === "self-learning" && task.linkedLearningPlanId) {
-    AppStore.update(prev => ({
-      ...prev,
-      selfLearningPlans: prev.selfLearningPlans.map(plan => {
-        if (plan.id !== task.linkedLearningPlanId) return plan;
-        if (task.id.startsWith("milestone-")) {
-          const mId = task.id.replace("milestone-", "");
-          return { ...plan, milestones: plan.milestones.map(m => m.id === mId ? { ...m, title: task.title, description: task.description, targetDate: task.dueDate, completed: task.status === "done" } : m) };
-        }
-        if (task.id.startsWith("sl-task-")) {
-          const tId = task.id.replace("sl-task-", "");
-          return { ...plan, stages: plan.stages.map(stage => ({ ...stage, tasks: stage.tasks?.map(t => t.id === tId ? { ...t, title: task.title, dueDate: task.dueDate, time: task.dueTime, completed: task.status === "done" } : t) })) };
-        }
-        return plan;
-      }),
-    }));
-    return;
-  }
-
-  // Tasks مرتبطة بـ course — تحفظ في memory بس
-  if (task.sourceModule === "course" && task.linkedCourseId) {
-    AppStore.update(prev => ({
-      ...prev,
-      courses: prev.courses.map(course => {
-        if (course.id !== task.linkedCourseId) return course;
-        if (task.id.startsWith("assign-")) {
-          const aId = task.id.replace("assign-", "");
-          return { ...course, assignments: course.assignments?.map(a => a.id === aId ? { ...a, title: task.title, description: task.description, dueDate: task.dueDate || a.dueDate, status: task.status === "done" ? "submitted_on_time" : "pending" } : a) };
-        }
-        if (task.id.startsWith("event-")) {
-          const eId = task.id.replace("event-", "");
-          return { ...course, academicEvents: course.academicEvents?.map(e => e.id === eId ? { ...e, title: task.title, date: task.dueDate || e.date } : e) as never };
-        }
-        return course;
-      }),
-    }));
-    return;
-  }
-
-  // Tasks عادية — نحفظها على الباك
-  const prefixes = ["milestone-", "sl-task-", "w-assign-", "w-exam-", "w-task-", "assign-", "event-", "w-item-"];
-  if (prefixes.some(p => task.id.startsWith(p))) {
-    AppStore.update(prev => ({ ...prev, tasks: prev.tasks.map(t => t.id === task.id ? task : t) }));
-    return;
-  }
-
-  const existingTask = AppStore.get().tasks.find(t => t.id === task.id);
-  if (existingTask) {
-    // تعديل task موجودة
-    try {
-      const saved = await DataService.updateTask(task);
-      AppStore.update(prev => keepStreakAlive({ ...prev, tasks: prev.tasks.map(t => t.id === saved.id ? saved : t) }));
-    } catch {
-      AppStore.update(prev => keepStreakAlive({ ...prev, tasks: prev.tasks.map(t => t.id === task.id ? task : t) }));
+    // Tasks مرتبطة بـ self-learning — تحفظ في memory بس
+    if (task.sourceModule === "self-learning" && task.linkedLearningPlanId) {
+      AppStore.update(prev => ({
+        ...prev,
+        selfLearningPlans: prev.selfLearningPlans.map(plan => {
+          if (plan.id !== task.linkedLearningPlanId) return plan;
+          if (task.id.startsWith("milestone-")) {
+            const mId = task.id.replace("milestone-", "");
+            return { ...plan, milestones: plan.milestones.map(m => m.id === mId ? { ...m, title: task.title, description: task.description, targetDate: task.dueDate, completed: task.status === "done" } : m) };
+          }
+          if (task.id.startsWith("sl-task-")) {
+            const tId = task.id.replace("sl-task-", "");
+            return { ...plan, stages: plan.stages.map(stage => ({ ...stage, tasks: stage.tasks?.map(t => t.id === tId ? { ...t, title: task.title, dueDate: task.dueDate, time: task.dueTime, completed: task.status === "done" } : t) })) };
+          }
+          return plan;
+        }),
+      }));
+      return;
     }
-  } else {
-    // إضافة task جديدة
-    try {
-      const saved = await DataService.createTask(task);
-      AppStore.update(prev => keepStreakAlive({ ...prev, tasks: [saved, ...prev.tasks] }));
-    } catch {
-      AppStore.update(prev => keepStreakAlive({ ...prev, tasks: [task, ...prev.tasks] }));
+
+    // Tasks مرتبطة بـ course — تحفظ في memory بس
+    if (task.sourceModule === "course" && task.linkedCourseId) {
+      AppStore.update(prev => ({
+        ...prev,
+        courses: prev.courses.map(course => {
+          if (course.id !== task.linkedCourseId) return course;
+          if (task.id.startsWith("assign-")) {
+            const aId = task.id.replace("assign-", "");
+            return { ...course, assignments: course.assignments?.map(a => a.id === aId ? { ...a, title: task.title, description: task.description, dueDate: task.dueDate || a.dueDate, status: task.status === "done" ? "submitted_on_time" : "pending" } : a) };
+          }
+          if (task.id.startsWith("event-")) {
+            const eId = task.id.replace("event-", "");
+            return { ...course, academicEvents: course.academicEvents?.map(e => e.id === eId ? { ...e, title: task.title, date: task.dueDate || e.date } : e) as never };
+          }
+          return course;
+        }),
+      }));
+      return;
     }
-  }
-}, []);
- 
+
+    // Tasks عادية — نحفظها على الباك
+    const prefixes = ["milestone-", "sl-task-", "w-assign-", "w-exam-", "w-task-", "assign-", "event-", "w-item-"];
+    if (prefixes.some(p => task.id.startsWith(p))) {
+      AppStore.update(prev => ({ ...prev, tasks: prev.tasks.map(t => t.id === task.id ? task : t) }));
+      return;
+    }
+
+    const existingTask = AppStore.get().tasks.find(t => t.id === task.id);
+    if (existingTask) {
+      // تعديل task موجودة
+      try {
+        const saved = await DataService.updateTask(task);
+        AppStore.update(prev => keepStreakAlive({ ...prev, tasks: prev.tasks.map(t => t.id === saved.id ? saved : t) }));
+      } catch {
+        AppStore.update(prev => keepStreakAlive({ ...prev, tasks: prev.tasks.map(t => t.id === task.id ? task : t) }));
+      }
+    } else {
+      // إضافة task جديدة
+      try {
+        const saved = await DataService.createTask(task);
+        AppStore.update(prev => keepStreakAlive({ ...prev, tasks: [saved, ...prev.tasks] }));
+      } catch {
+        AppStore.update(prev => keepStreakAlive({ ...prev, tasks: [task, ...prev.tasks] }));
+      }
+    }
+  }, []);
 
   const deleteUnifiedTask = useCallback((task: TaskItem) => {
     AppStore.update(prev => {
