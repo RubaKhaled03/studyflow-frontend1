@@ -108,16 +108,44 @@ export default function PlanDetailsPage() {
   );
 
   // Persist every plan change
-  const persistPlan = (updated: LearningPlan) => {
-    updateState((prev) => {
-      const idx = prev.selfLearningPlans.findIndex((p) => p.id === updated.id);
-      if (idx === -1) return prev;
-      const newPlans = [...prev.selfLearningPlans];
-      newPlans[idx] = updated;
-      return { ...prev, selfLearningPlans: newPlans };
-    });
-  };
+ const persistPlan = async (updated: LearningPlan) => {
+  updateState((prev) => {
+    const idx = prev.selfLearningPlans.findIndex((p) => p.id === updated.id);
+    if (idx === -1) return prev;
+    const newPlans = [...prev.selfLearningPlans];
+    newPlans[idx] = updated;
+    return { ...prev, selfLearningPlans: newPlans };
+  });
 
+  try {
+    const { apiClient } = await import("@/lib/api-client");
+    const oldPlan = state.selfLearningPlans.find((p) => p.id === updated.id);
+
+    // Sync stages
+    for (const stage of updated.stages) {
+      const exists = oldPlan?.stages.find((s) => s.id === stage.id);
+      if (!exists) {
+        await apiClient.post(`/self-learning/${updated.id}/stages`, stage);
+      } else {
+        await apiClient.put(`/self-learning/${updated.id}/stages/${stage.id}`, stage);
+      }
+    }
+
+    // Sync milestones
+    for (const milestone of updated.milestones) {
+      const exists = oldPlan?.milestones.find((m) => m.id === milestone.id);
+      if (!exists) {
+        await apiClient.post(`/self-learning/${updated.id}/milestones`, milestone);
+      } else {
+        await apiClient.put(`/self-learning/${updated.id}/milestones/${milestone.id}`, milestone);
+      }
+    }
+
+    await apiClient.put(`/self-learning/${updated.id}`, updated);
+  } catch (err) {
+    console.error("Failed to persist plan", err);
+  }
+};
   const progress = useMemo(() => (plan ? calcPlanProgress(plan) : 0), [plan]);
 
   if (!isLoaded || !plan) {

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect, useCallback, useSyncExternalStore } from "react";
+import { useState, useEffect, useCallback, useRef, useSyncExternalStore } from "react";
 import { Settings2, RotateCcw ,X} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TimerDisplay } from "@/components/focus/timer-display";
@@ -12,6 +12,7 @@ import { TasksPanel } from "@/components/focus/tasks-panel";
 import { ChallengeBar } from "@/components/focus/challenge-bar";
 import { useTimer } from "@/hooks/use-timer";
 import { FocusSkeleton } from "@/components/shared/skeletons";
+import { DataService } from "@/services/data.service";
 
 const STORAGE_KEY = "pomodoro-settings";
 const CHALLENGE_STORAGE_KEY = "daily-challenge";
@@ -92,6 +93,8 @@ export default function FocusPage() {
 
   const [activeSession, setActiveSession] = useState<SessionType>("pomodoro");
 
+  const sessionStartRef = useRef<string | null>(null);
+
   const [sessionCounts, setSessionCounts] = useState({
     pomodoro: 0,
     rest: 0,
@@ -99,6 +102,36 @@ export default function FocusPage() {
   });
 
   const [totalFocusMinutes, setTotalFocusMinutes] = useState(0);
+
+  // Load today's focus sessions from the backend so counts survive a refresh
+  useEffect(() => {
+    if (!mounted) return;
+
+    const todayKey = new Date().toDateString();
+
+    DataService.getFocusSessions()
+      .then((sessions) => {
+        const todaysSessions = sessions.filter(
+          (s) => new Date(s.startTime).toDateString() === todayKey,
+        );
+
+        const counts = { pomodoro: 0, rest: 0, longRest: 0 };
+        let focusMinutes = 0;
+
+        todaysSessions.forEach((s) => {
+          if (s.mode === "pomodoro") {
+            counts.pomodoro += 1;
+            focusMinutes += s.durationMinutes;
+          }
+        });
+
+        setSessionCounts(counts);
+        setTotalFocusMinutes(focusMinutes);
+      })
+      .catch(() => {
+        console.error("Failed to load today's focus sessions");
+      });
+  }, [mounted]);
 
   // Calculate total challenge minutes from hours and minutes input
   const totalChallengeMinutes = challengeHours * 60 + challengeMinutes;
@@ -146,6 +179,19 @@ export default function FocusPage() {
     if (activeSession === "pomodoro") {
       const durations = getCurrentDurations();
       setTotalFocusMinutes((prev) => prev + durations.pomodoro);
+
+      // Log the completed pomodoro session to the backend
+      const endTime = new Date().toISOString();
+      DataService.createFocusSession({
+        durationMinutes: durations.pomodoro,
+        startTime: sessionStartRef.current || endTime,
+        endTime,
+        mode: "pomodoro",
+        completed: true,
+      }).catch(() => {
+        console.error("Failed to log focus session to backend");
+      });
+      sessionStartRef.current = null;
     }
 
     if (activeSession === "pomodoro") {
@@ -194,6 +240,7 @@ export default function FocusPage() {
 
   const handleSessionChange = (session: SessionType) => {
     setActiveSession(session);
+    sessionStartRef.current = null;
     reset();
     setTime(getDurationForSession(session));
   };
@@ -220,6 +267,7 @@ export default function FocusPage() {
 
   const handleRestart = () => {
     reset();
+    sessionStartRef.current = null;
     setTime(getDurationForSession(activeSession));
     setSessionCounts({ pomodoro: 0, rest: 0, longRest: 0 });
     setTotalFocusMinutes(0);
@@ -324,7 +372,12 @@ export default function FocusPage() {
                 <Button
                   size="lg"
                   className="h-14 w-full max-w-md text-lg font-semibold hover:primary"
-                  onClick={start}
+                  onClick={() => {
+                    if (activeSession === "pomodoro" && !sessionStartRef.current) {
+                      sessionStartRef.current = new Date().toISOString();
+                    }
+                    start();
+                  }}
                 >
                   {state === "paused" ? "RESUME" : "START"}
                 </Button>

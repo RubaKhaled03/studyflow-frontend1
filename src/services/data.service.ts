@@ -5,6 +5,35 @@ import { ReflectionEntry } from "@/types/reflections";
 import { LearningPlan } from "@/types/self-learning";
 import { PlannerSemester } from "@/types/academic-planning";
 
+export interface FocusSession {
+  id: string;
+  durationMinutes: number;
+  startTime: string;
+  endTime?: string | null;
+  mode: "pomodoro" | "stopwatch";
+  completed: boolean;
+  linkedTaskId?: string | null;
+  linkedCourseId?: string | null;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FocusAnalytics {
+  totalSessions: number;
+  totalMinutesAllTime: number;
+  weekly: {
+    totalSessions: number;
+    totalMinutes: number;
+    dailyBreakdown: { date: string; minutes: number }[];
+  };
+  monthly: {
+    totalSessions: number;
+    totalMinutes: number;
+  };
+  averageSessionMinutes: number;
+}
+
 /**
  * Data service — all API calls for app data
  */
@@ -60,7 +89,7 @@ export const DataService = {
     return apiClient.post<LearningPlan>("/self-learning", plan);
   },
   async updateLearningPlan(plan: LearningPlan): Promise<LearningPlan> {
-    return apiClient.put<LearningPlan>(`/self-learning/${plan.id}`, plan);
+    return apiClient.patch<LearningPlan>(`/self-learning/${plan.id}`, plan);
   },
   async deleteLearningPlan(id: string): Promise<void> {
     return apiClient.delete(`/self-learning/${id}`);
@@ -78,6 +107,29 @@ export const DataService = {
   },
   async deleteSemester(id: string): Promise<void> {
     return apiClient.delete(`/semesters/${id}`);
+  },
+
+  // ─── FOCUS SESSIONS ───────────────────────────────────────
+  async getFocusSessions(): Promise<FocusSession[]> {
+    return apiClient.get<FocusSession[]>("/focus/sessions");
+  },
+  async createFocusSession(session: {
+    durationMinutes: number;
+    startTime: string;
+    endTime?: string;
+    mode: "pomodoro" | "stopwatch";
+    completed?: boolean;
+    linkedTaskId?: string;
+    linkedCourseId?: string;
+    notes?: string;
+  }): Promise<FocusSession> {
+    return apiClient.post<FocusSession>("/focus/sessions", session);
+  },
+  async deleteFocusSession(id: string): Promise<void> {
+    return apiClient.delete(`/focus/sessions/${id}`);
+  },
+  async getFocusAnalytics(): Promise<FocusAnalytics> {
+    return apiClient.get<FocusAnalytics>("/focus/analytics");
   },
 
   // ─── LOAD ALL DATA ────────────────────────────────────────

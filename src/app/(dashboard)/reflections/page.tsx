@@ -57,34 +57,48 @@ export default function ReflectionsPage() {
     setReflectionToDelete(id);
   };
 
-  const confirmDelete = () => {
-    if (reflectionToDelete) {
-      updateState(prev => ({
-        ...prev,
-        reflections: prev.reflections.filter(r => r.id !== reflectionToDelete)
-      }));
-      setDetailOpen(false);
-      setReflectionToDelete(null);
+  const confirmDelete = async () => {
+  if (reflectionToDelete) {
+    try {
+      const { DataService } = await import("@/services/data.service");
+      await DataService.deleteReflection(reflectionToDelete);
+    } catch (err) {
+      console.error("Failed to delete reflection", err);
     }
-  };
+    updateState(prev => ({
+      ...prev,
+      reflections: prev.reflections.filter(r => r.id !== reflectionToDelete)
+    }));
+    setDetailOpen(false);
+    setReflectionToDelete(null);
+  }
+};
 
-  const handleSaveEntry = (entry: ReflectionEntry) => {
+  const handleSaveEntry = async (entry: ReflectionEntry) => {
+  try {
+    const { DataService } = await import("@/services/data.service");
+    let saved: ReflectionEntry;
+    const exists = state.reflections.find(r => r.id === entry.id);
+    if (exists) {
+      saved = await DataService.updateReflection(entry);
+    } else {
+      saved = await DataService.createReflection(entry);
+    }
     updateState(prev => {
-      const existingReflections = prev.reflections;
-      const idx = existingReflections.findIndex(r => r.id === entry.id);
-      let nextReflections = [];
+      const idx = prev.reflections.findIndex(r => r.id === saved.id);
       if (idx >= 0) {
-        nextReflections = [...existingReflections];
-        nextReflections[idx] = entry;
-      } else {
-        nextReflections = [entry, ...existingReflections];
+        const next = [...prev.reflections];
+        next[idx] = saved;
+        return { ...prev, reflections: next };
       }
-      return {
-        ...prev,
-        reflections: nextReflections
-      };
+      return { ...prev, reflections: [saved, ...prev.reflections] };
     });
-  };
+  } catch (err) {
+    console.error("Failed to save reflection", err);
+  }
+};
+
+
 
   if (!isLoaded) {
     return (

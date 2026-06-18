@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { UserProfile } from "@/types/settings";
 import { useAppState } from "@/hooks/use-app-state";
+import { AuthService } from "@/services/auth.service";
 import { SettingsHeader } from "@/components/settings/settings-header";
 import { ProfileSection } from "@/components/settings/profile-section";
 import { AcademicSettingsSection } from "@/components/settings/academic-settings-section";
@@ -19,12 +20,12 @@ export default function SettingsPage() {
   const [localProfile, setLocalProfile] = useState<UserProfile | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
   const handleLogout = () => {
-    // Data should be handled by backend
-    window.location.href = "/";
+    AuthService.logout();
   };
 
   // Sync with central state when it loads
@@ -39,6 +40,7 @@ export default function SettingsPage() {
     setLocalProfile({ ...localProfile, ...updates });
     setHasChanges(true);
     setSaveSuccess(false);
+    setSaveError(false);
   };
 
   const handleUpdateReminders = (
@@ -51,6 +53,7 @@ export default function SettingsPage() {
     });
     setHasChanges(true);
     setSaveSuccess(false);
+    setSaveError(false);
   };
 
   const handleSave = async () => {
@@ -65,38 +68,49 @@ export default function SettingsPage() {
     }
 
     setIsSaving(true);
+    setSaveError(false);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      const updated = await AuthService.updateProfile({
+        name: localProfile.name,
+        university: localProfile.university,
+        major: localProfile.major,
+        academicYear: localProfile.academicYear,
+        currentGPA: localProfile.currentGPA,
+        totalCreditHours: localProfile.totalCreditHours,
+        completedCreditHours: localProfile.completedCreditHours,
+        themePreference: localProfile.themePreference,
+        focusPreferences: localProfile.focusPreferences,
+        reminderPreferences: localProfile.reminderPreferences,
+      });
 
-    // Update central state
-    updateState({
-      userProfile: {
-        ...localProfile,
-        updatedAt: new Date().toISOString(),
-      },
-      // Keep academic planning total credits in sync if relevant
-      academicPlanning: {
-        ...state.academicPlanning,
-        config: {
-          ...state.academicPlanning.config,
-          totalRequiredCredits: parseInt(localProfile.totalCreditHours) || 144,
+      updateState({
+        userProfile: updated,
+        academicPlanning: {
+          ...state.academicPlanning,
+          config: {
+            ...state.academicPlanning.config,
+            totalRequiredCredits: parseInt(updated.totalCreditHours) || 144,
+          },
         },
-      },
-    });
+      });
 
-    setIsSaving(false);
-    setSaveSuccess(true);
-    setHasChanges(false);
-
-    // Reset success message after 3 seconds
-    setTimeout(() => setSaveSuccess(false), 3000);
+      setLocalProfile(updated);
+      setSaveSuccess(true);
+      setHasChanges(false);
+      setTimeout(() => setSaveSuccess(false), 3000);
+    } catch {
+      setSaveError(true);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleReset = () => {
     setLocalProfile(state.userProfile);
     setHasChanges(false);
     setSaveSuccess(false);
+    setSaveError(false);
   };
 
   if (!isLoaded || !localProfile) {
@@ -141,6 +155,12 @@ export default function SettingsPage() {
           </Button>
         </div>
       </div>
+
+      {saveError && (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/10 text-destructive text-sm px-4 py-3">
+          Failed to save changes. Please check your connection and try again.
+        </div>
+      )}
 
       <div className="space-y-10">
         <ProfileSection profile={localProfile} onUpdate={handleUpdateProfile} />

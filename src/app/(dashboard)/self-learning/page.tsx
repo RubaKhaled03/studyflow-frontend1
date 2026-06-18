@@ -11,11 +11,10 @@ import { LearningPlanCard } from "@/components/self-learning/learning-plan-card"
 import { LearningPlanFormDialog } from "@/components/self-learning/learning-plan-form-dialog";
 import { SelfLearningEmptyState } from "@/components/self-learning/self-learning-empty-state";
 import { HeaderSkeleton, CardGridSkeleton } from "@/components/shared/skeletons";
-
 import { ConfirmActionDialog } from "@/components/shared/confirm-action-dialog";
 
 export default function SelfLearningPage() {
-  const { state, isLoaded, updateState } = useAppState();
+  const { state, isLoaded, addLearningPlan, updateLearningPlan, deleteLearningPlan } = useAppState();
   const plans = state.selfLearningPlans;
 
   // Dialog state
@@ -39,33 +38,22 @@ export default function SelfLearningPage() {
 
   const handleNewPlan = () => { setEditingPlan(null); setFormOpen(true); };
   const handleEdit = (plan: LearningPlan) => { setEditingPlan(plan); setFormOpen(true); };
-  
-  const handleDelete = (id: string) => {
-    setPlanToDelete(id);
-  };
+  const handleDelete = (id: string) => { setPlanToDelete(id); };
 
-  const confirmDeletePlan = () => {
+  const confirmDeletePlan = async () => {
     if (planToDelete) {
-      updateState(prev => ({
-        ...prev,
-        selfLearningPlans: prev.selfLearningPlans.filter(p => p.id !== planToDelete)
-      }));
+      await deleteLearningPlan(planToDelete);
       setPlanToDelete(null);
     }
   };
 
-  const handleSave = (plan: LearningPlan) => {
-    updateState(prev => {
-      const idx = prev.selfLearningPlans.findIndex(p => p.id === plan.id);
-      let updatedPlans = [];
-      if (idx >= 0) { 
-        updatedPlans = [...prev.selfLearningPlans]; 
-        updatedPlans[idx] = plan; 
-      } else {
-        updatedPlans = [plan, ...prev.selfLearningPlans];
-      }
-      return { ...prev, selfLearningPlans: updatedPlans };
-    });
+  const handleSave = async (plan: LearningPlan) => {
+    const exists = state.selfLearningPlans.find(p => p.id === plan.id);
+    if (exists) {
+      await updateLearningPlan(plan);
+    } else {
+      await addLearningPlan(plan);
+    }
   };
 
   if (!isLoaded) {
@@ -78,7 +66,7 @@ export default function SelfLearningPage() {
   }
 
   return (
-<div className="space-y-6 pb-8 animate-in fade-in zoom-in-95 duration-500">      
+    <div className="space-y-6 pb-8 animate-in fade-in zoom-in-95 duration-500">
       <SelfLearningHeader onNewPlan={handleNewPlan} />
 
       {plans.length > 0 && <SelfLearningStats stats={stats} />}

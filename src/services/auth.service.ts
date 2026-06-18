@@ -73,6 +73,16 @@ export const AuthService = {
   },
 
   /**
+   * Update current user profile (partial update)
+   */
+  async updateProfile(updates: Partial<UserProfile>) {
+    const response = await apiClient.patch<UserProfile>("/auth/profile", updates);
+    localStorage.setItem("studyflow_user", JSON.stringify(response));
+    AppStore.update({ userProfile: response });
+    return response;
+  },
+
+  /**
    * Logout user
    */
   logout() {
