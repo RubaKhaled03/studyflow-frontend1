@@ -46,24 +46,11 @@ export default function SetupPage() {
 
   const handleComplete = async () => {
     setIsLoading(true)
-    
-    // Simulate saving data
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // Import store dynamically to avoid hydration issues if needed
-    const { AppStore } = await import("@/lib/store/app-store");
-    const { EMPTY_APP_STATE } = await import("@/types/app-state");
-    
-    // Merge only profile info into a fresh empty state
-    const currentState = AppStore.get();
-    const cleanState = { ...EMPTY_APP_STATE };
-    
-    AppStore.set({
-      ...cleanState,
-      onboardingCompleted: true,
-      userProfile: {
-        ...cleanState.userProfile,
-        name: currentState.userProfile.name, // Preserve name from registration
+
+    try {
+      const { AuthService } = await import("@/services/auth.service");
+
+      await AuthService.updateProfile({
         academicYear: formData.academicYear,
         totalCreditHours: formData.totalCreditHours,
         completedCreditHours: formData.completedCreditHours,
@@ -71,18 +58,13 @@ export default function SetupPage() {
         university: formData.university,
         major: formData.major,
         onboardingCompleted: true,
-        updatedAt: new Date().toISOString()
-      },
-      academicPlanning: {
-        ...cleanState.academicPlanning,
-        config: {
-          ...cleanState.academicPlanning.config,
-          totalRequiredCredits: parseInt(formData.totalCreditHours) || 144
-        }
-      }
-    });
-    
-    router.push("/dashboard")
+      });
+
+      router.push("/dashboard");
+    } catch (err) {
+      console.error("Failed to save setup data:", err);
+      setIsLoading(false);
+    }
   }
 
   const canProceed = () => {

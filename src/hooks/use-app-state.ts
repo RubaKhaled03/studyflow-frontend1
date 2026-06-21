@@ -48,7 +48,7 @@ function keepStreakAlive(state: AppState): AppState {
   return newState;
 }
 
-async function persistStreak(streak: any) {
+async function persistStreak(streak: unknown) {
   try {
     const { apiClient } = await import("@/lib/api-client");
     await apiClient.post("/auth/streak", streak);
@@ -101,6 +101,17 @@ export function useAppState() {
       setState(newState);
     });
 
+    // If we've already fetched data from the backend this session,
+    // just read from the in-memory store — no need to refetch on every
+    // page navigation / component remount.
+    if (AppStore.hasLoaded()) {
+      setState(AppStore.get());
+      setIsLoaded(true);
+      return () => {
+        unsubscribe();
+      };
+    }
+
     if (token) {
       const savedUser = localStorage.getItem("studyflow_user");
       if (savedUser) {
@@ -129,14 +140,16 @@ export function useAppState() {
             const { AuthService } = await import("@/services/auth.service");
             const profile = await AuthService.getProfile();
             if (profile?.streak) {
+              const profileStreak = profile.streak;
               AppStore.update((prev) => ({
                 ...prev,
-                streak: profile.streak,
+                streak: profileStreak,
               }));
             }
           } catch (err) {
             console.error("Failed to load streak", err);
           }
+          AppStore.markLoaded();
           setState(AppStore.get());
           setIsLoaded(true);
         });
@@ -152,10 +165,17 @@ export function useAppState() {
     };
   }, []);
 
+  /**
+   * Updates state and persists to storage.
+   * Listeners (including this one) will be notified automatically.
+   */
   const updateState = useCallback((update: Partial<AppState> | ((s: AppState) => AppState)) => {
     AppStore.update(update);
   }, []);
 
+  /**
+   * Resets the entire app to empty
+   */
   const resetApp = useCallback(() => {
     AppStore.reset();
     setState(EMPTY_APP_STATE);
@@ -166,60 +186,152 @@ export function useAppState() {
   const addSemester = useCallback(async (semester: PlannerSemester) => {
     try {
       const saved = await DataService.createSemester(semester);
-      AppStore.update(prev => keepStreakAlive({
-        ...prev,
-        academicPlanning: { ...prev.academicPlanning, semesters: [...prev.academicPlanning.semesters, saved] }
-      }));
+      updateState(prev => {
+        const newState = {
+          ...prev,
+          academicPlanning: {
+            ...prev.academicPlanning,
+            semesters: [...prev.academicPlanning.semesters, saved]
+          }
+        };
+        return keepStreakAlive(newState);
+      });
     } catch {
-      AppStore.update(prev => keepStreakAlive({
-        ...prev,
-        academicPlanning: { ...prev.academicPlanning, semesters: [...prev.academicPlanning.semesters, semester] }
-      }));
+      updateState(prev => {
+        const newState = {
+          ...prev,
+          academicPlanning: {
+            ...prev.academicPlanning,
+            semesters: [...prev.academicPlanning.semesters, semester]
+          }
+        };
+        return keepStreakAlive(newState);
+      });
     }
-  }, []);
+  }, [updateState]);
 
   const updateSemester = useCallback(async (semester: PlannerSemester) => {
     try {
       const saved = await DataService.updateSemester(semester);
-      AppStore.update(prev => keepStreakAlive({
-        ...prev,
-        academicPlanning: { ...prev.academicPlanning, semesters: prev.academicPlanning.semesters.map(s => s.id === saved.id ? saved : s) }
-      }));
+      updateState(prev => {
+        const newState = {
+          ...prev,
+          academicPlanning: {
+            ...prev.academicPlanning,
+            semesters: prev.academicPlanning.semesters.map(s => s.id === saved.id ? saved : s)
+          }
+        };
+        return keepStreakAlive(newState);
+      });
     } catch {
-      AppStore.update(prev => keepStreakAlive({
-        ...prev,
-        academicPlanning: { ...prev.academicPlanning, semesters: prev.academicPlanning.semesters.map(s => s.id === semester.id ? semester : s) }
-      }));
+      updateState(prev => {
+        const newState = {
+          ...prev,
+          academicPlanning: {
+            ...prev.academicPlanning,
+            semesters: prev.academicPlanning.semesters.map(s => s.id === semester.id ? semester : s)
+          }
+        };
+        return keepStreakAlive(newState);
+      });
     }
-  }, []);
+  }, [updateState]);
 
   const deleteSemester = useCallback(async (id: string) => {
     try { await DataService.deleteSemester(id); } catch { console.error("Failed to delete semester"); }
-    AppStore.update(prev => keepStreakAlive({
-      ...prev,
-      academicPlanning: { ...prev.academicPlanning, semesters: prev.academicPlanning.semesters.filter(s => s.id !== id) }
-    }));
-  }, []);
+    updateState(prev => {
+      const newState = {
+        ...prev,
+        academicPlanning: {
+          ...prev.academicPlanning,
+          semesters: prev.academicPlanning.semesters.filter(s => s.id !== id)
+        }
+      };
+      return keepStreakAlive(newState);
+    });
+  }, [updateState]);
 
   // ─── Courses ────────────────────────────────────────────────────────────────
 
   const addCourse = useCallback(async (course: Course) => {
     try {
       const saved = await DataService.createCourse(course);
-      AppStore.update(prev => keepStreakAlive(syncSemesterStatus({ ...prev, courses: [...prev.courses, saved] }, saved.semesterId)));
+      updateState(prev => {
+        const newState = {
+          ...prev,
+          academicPlanning: saved.semesterId &&
+          saved.semesterId !== "prior-completed" &&
+          !prev.academicPlanning.semesters.some(s => s.id === saved.semesterId)
+            ? {
+                ...prev.academicPlanning,
+                semesters: [
+                  ...prev.academicPlanning.semesters,
+                  {
+                    id: saved.semesterId,
+                    name: "New Semester",
+                    status: "planned" as "planned" | "current" | "completed",
+                    weeksCount: 16,
+                    academicYear: new Date().getFullYear().toString(),
+                  },
+                ],
+              }
+            : prev.academicPlanning,
+          courses: [...prev.courses, saved]
+        };
+        const newStateWithSync = syncSemesterStatus(newState, saved.semesterId);
+        return keepStreakAlive(newStateWithSync);
+      });
     } catch {
-      AppStore.update(prev => keepStreakAlive(syncSemesterStatus({ ...prev, courses: [...prev.courses, course] }, course.semesterId)));
+      updateState(prev => {
+        const newState = {
+          ...prev,
+          academicPlanning: course.semesterId &&
+          course.semesterId !== "prior-completed" &&
+          !prev.academicPlanning.semesters.some(s => s.id === course.semesterId)
+            ? {
+                ...prev.academicPlanning,
+                semesters: [
+                  ...prev.academicPlanning.semesters,
+                  {
+                    id: course.semesterId,
+                    name: "New Semester",
+                    status: "planned" as "planned" | "current" | "completed",
+                    weeksCount: 16,
+                    academicYear: new Date().getFullYear().toString(),
+                  },
+                ],
+              }
+            : prev.academicPlanning,
+          courses: [...prev.courses, course]
+        };
+        const newStateWithSync = syncSemesterStatus(newState, course.semesterId);
+        return keepStreakAlive(newStateWithSync);
+      });
     }
-  }, []);
+  }, [updateState]);
 
   const updateCourse = useCallback(async (course: Course) => {
     try {
       const saved = await DataService.updateCourse(course);
-      AppStore.update(prev => keepStreakAlive(syncSemesterStatus({ ...prev, courses: prev.courses.map(c => c.id === saved.id ? saved : c) }, saved.semesterId)));
+      updateState(prev => {
+        const newState = {
+          ...prev,
+          courses: prev.courses.map(c => c.id === saved.id ? saved : c)
+        };
+        const newStateWithSync = syncSemesterStatus(newState, saved.semesterId);
+        return keepStreakAlive(newStateWithSync);
+      });
     } catch {
-      AppStore.update(prev => keepStreakAlive(syncSemesterStatus({ ...prev, courses: prev.courses.map(c => c.id === course.id ? course : c) }, course.semesterId)));
+      updateState(prev => {
+        const newState = {
+          ...prev,
+          courses: prev.courses.map(c => c.id === course.id ? course : c)
+        };
+        const newStateWithSync = syncSemesterStatus(newState, course.semesterId);
+        return keepStreakAlive(newStateWithSync);
+      });
     }
-  }, []);
+  }, [updateState]);
 
   const deleteCourse = useCallback(async (id: string) => {
     try { await DataService.deleteCourse(id); } catch { console.error("Failed to delete course"); }

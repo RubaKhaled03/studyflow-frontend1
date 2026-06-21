@@ -1,4 +1,4 @@
-import { ReminderConfig } from "./reminders";
+
 
 export interface FocusPreferences {
   preferredSessionDuration: number; // in minutes
@@ -30,6 +30,33 @@ export interface UserProfile {
   focusPreferences: FocusPreferences;
   reminderPreferences: ReminderPreferences;
   themePreference: "light" | "dark" | "system";
+  
+  createdAt: string;
+  updatedAt: string;
+  
+}
+export interface UserProfile {
+  id: string;
+  name: string;
+  university: string;
+  major: string;
+  academicYear: string;
+  currentGPA: string;
+  totalCreditHours: string;
+  completedCreditHours: string;
+  avatarUrl?: string;
+  onboardingCompleted: boolean;
+  
+  focusPreferences: FocusPreferences;
+  reminderPreferences: ReminderPreferences;
+  themePreference: "light" | "dark" | "system";
+  
+  streak?: {
+    currentCount: number;
+    longestCount: number;
+    lastActiveDate: string;
+    activeDays: string[];
+  };
   
   createdAt: string;
   updatedAt: string;

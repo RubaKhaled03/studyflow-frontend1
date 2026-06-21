@@ -1,11 +1,16 @@
 import { AppState, EMPTY_APP_STATE } from "@/types/app-state";
 
-const APP_STATE_KEY = "studyflow_app_state";
-
 export class AppStore {
   private static currentState: AppState = EMPTY_APP_STATE;
   private static isClient = typeof window !== "undefined";
   private static listeners: ((state: AppState) => void)[] = [];
+
+  /**
+   * Tracks whether data has already been fetched from the backend
+   * during this browser session, so we only call loadAllData() once
+   * instead of on every page navigation / component remount.
+   */
+  private static hasLoadedFromBackend = false;
 
   /**
    * Subscribe to state changes
@@ -57,6 +62,7 @@ export class AppStore {
    * Reset to empty initial state
    */
   static reset(): void {
+    this.hasLoadedFromBackend = false;
     this.set(EMPTY_APP_STATE);
   }
 
@@ -64,7 +70,22 @@ export class AppStore {
    * Clear all studyflow related localStorage keys to ensure absolute clean start
    */
   static clearAll(): void {
+    this.hasLoadedFromBackend = false;
     this.set(EMPTY_APP_STATE);
+  }
+
+  /**
+   * Whether loadAllData() has already run successfully this session.
+   */
+  static hasLoaded(): boolean {
+    return this.hasLoadedFromBackend;
+  }
+
+  /**
+   * Mark the backend data as loaded so subsequent mounts skip refetching.
+   */
+  static markLoaded(): void {
+    this.hasLoadedFromBackend = true;
   }
 
   /**
@@ -74,4 +95,3 @@ export class AppStore {
     // Migration logic removed as localStorage is no longer used
   }
 }
-
