@@ -15,6 +15,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { DataService } from "@/services/data.service";
 
+const POLL_INTERVAL_MS = 30_000; // كل 30 ثانية
+
 export function NotificationCenter() {
   const { state, updateState } = useAppState();
   const router = useRouter();
@@ -22,6 +24,33 @@ export function NotificationCenter() {
   
   const notifications = state.notifications || [];
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  // ─── Polling: نجيب الـ notifications كل 30 ثانية ─────────────────
+  const fetchNotifications = React.useCallback(async () => {
+    try {
+      const fresh = await DataService.getNotifications();
+      updateState({ notifications: fresh });
+    } catch {
+      // صامت — ما نعطّل الواجهة لو الـ request فشل
+    }
+  }, [updateState]);
+
+  React.useEffect(() => {
+    // جيب فوراً أول ما الـ component يتحمّل
+    fetchNotifications();
+
+    // ابدأ الـ polling
+    const timer = window.setInterval(fetchNotifications, POLL_INTERVAL_MS);
+    return () => window.clearInterval(timer);
+  }, [fetchNotifications]);
+
+  // لما يفتح الـ popover، نجيب fresh data فوراً
+  React.useEffect(() => {
+    if (open) {
+      fetchNotifications();
+    }
+  }, [open, fetchNotifications]);
+  // ─────────────────────────────────────────────────────────────────
 
   const handleMarkAsRead = (id: string) => {
     const notification = notifications.find(n => n.id === id);
