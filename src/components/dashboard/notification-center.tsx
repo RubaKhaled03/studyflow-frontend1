@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Bell, CheckCheck, Trash2 } from "lucide-react";
 import { NotificationItem } from "./notification-item";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import { DataService } from "@/services/data.service";
 
 export function NotificationCenter() {
   const { state, updateState } = useAppState();
@@ -25,7 +25,9 @@ export function NotificationCenter() {
 
   const handleMarkAsRead = (id: string) => {
     const notification = notifications.find(n => n.id === id);
-    
+    const previousNotifications = notifications;
+
+    // Optimistic update
     updateState({
       notifications: notifications.map(n => 
         n.id === id ? { ...n, read: true } : n
@@ -36,16 +38,32 @@ export function NotificationCenter() {
       router.push(notification.targetRoute);
       setOpen(false);
     }
+
+    DataService.markNotificationRead(id).catch(() => {
+      updateState({ notifications: previousNotifications });
+    });
   };
 
   const handleMarkAllRead = () => {
+    const previousNotifications = notifications;
+
     updateState({
       notifications: notifications.map(n => ({ ...n, read: true }))
+    });
+
+    DataService.markAllNotificationsRead().catch(() => {
+      updateState({ notifications: previousNotifications });
     });
   };
 
   const handleClearAll = () => {
+    const previousNotifications = notifications;
+
     updateState({ notifications: [] });
+
+    DataService.clearAllNotifications().catch(() => {
+      updateState({ notifications: previousNotifications });
+    });
   };
 
   return (
@@ -105,7 +123,7 @@ export function NotificationCenter() {
               <div className="space-y-1">
                 <p className="text-sm font-medium">All caught up!</p>
                 <p className="text-xs text-muted-foreground max-w-[200px]">
-                  When you have notifications, they'll appear here.
+                  When you have notifications, they&apos;ll appear here.
                 </p>
               </div>
             </div>

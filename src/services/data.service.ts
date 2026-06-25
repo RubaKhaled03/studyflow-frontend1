@@ -4,6 +4,8 @@ import { TaskItem } from "@/types/tasks";
 import { ReflectionEntry } from "@/types/reflections";
 import { LearningPlan } from "@/types/self-learning";
 import { PlannerSemester } from "@/types/academic-planning";
+import { ExamModeState, ExamPreparationTopic } from "@/types/exam-mode";
+import { Notification } from "@/types/notifications";
 
 export interface FocusSession {
   id: string;
@@ -131,16 +133,78 @@ export const DataService = {
   async getFocusAnalytics(): Promise<FocusAnalytics> {
     return apiClient.get<FocusAnalytics>("/focus/analytics");
   },
+// ─── EXAM MODE ────────────────────────────────────────────
+  async getExamModeState(courseId: string, examId: string): Promise<ExamModeState> {
+    return apiClient.get<ExamModeState>(`/courses/${courseId}/exam-mode/${examId}`);
+  },
+  async updateExamModeNotes(
+    courseId: string,
+    examId: string,
+    notes: string
+  ): Promise<ExamModeState> {
+    return apiClient.patch<ExamModeState>(`/courses/${courseId}/exam-mode/${examId}`, { notes });
+  },
+  async addExamTopic(
+    courseId: string,
+    examId: string,
+    topic: { title: string; priority?: ExamPreparationTopic["priority"]; notes?: string }
+  ): Promise<ExamPreparationTopic> {
+    return apiClient.post<ExamPreparationTopic>(
+      `/courses/${courseId}/exam-mode/${examId}/topics`,
+      topic
+    );
+  },
+  async updateExamTopic(
+    courseId: string,
+    examId: string,
+    topicId: string,
+    updates: Partial<Pick<ExamPreparationTopic, "title" | "completed" | "priority" | "notes">>
+  ): Promise<ExamPreparationTopic> {
+    return apiClient.patch<ExamPreparationTopic>(
+      `/courses/${courseId}/exam-mode/${examId}/topics/${topicId}`,
+      updates
+    );
+  },
+  async deleteExamTopic(courseId: string, examId: string, topicId: string): Promise<void> {
+    return apiClient.delete(`/courses/${courseId}/exam-mode/${examId}/topics/${topicId}`);
+  },
 
-  // ─── LOAD ALL DATA ────────────────────────────────────────
+  // ─── NOTIFICATIONS ────────────────────────────────────────
+  async getNotifications(): Promise<Notification[]> {
+    return apiClient.get<Notification[]>("/notifications");
+  },
+  async createNotification(notification: {
+    title: string;
+    message: string;
+    type?: Notification["type"];
+    targetRoute?: string;
+    targetId?: string;
+  }): Promise<Notification> {
+    return apiClient.post<Notification>("/notifications", notification);
+  },
+  async markNotificationRead(id: string): Promise<Notification> {
+    return apiClient.patch<Notification>(`/notifications/${id}`, { read: true });
+  },
+  async markAllNotificationsRead(): Promise<void> {
+    return apiClient.patch(`/notifications/mark-all-read`);
+  },
+  async deleteNotification(id: string): Promise<void> {
+    return apiClient.delete(`/notifications/${id}`);
+  },
+  async clearAllNotifications(): Promise<void> {
+    return apiClient.delete(`/notifications`);
+  },
+
+ // ─── LOAD ALL DATA ────────────────────────────────────────
   async loadAllData() {
-    const [courses, tasks, reflections, learningPlans, semesters] = await Promise.all([
+    const [courses, tasks, reflections, learningPlans, semesters, notifications] = await Promise.all([
       DataService.getCourses().catch(() => []),
       DataService.getTasks().catch(() => []),
       DataService.getReflections().catch(() => []),
       DataService.getLearningPlans().catch(() => []),
       DataService.getSemesters().catch(() => []),
+      DataService.getNotifications().catch(() => []),
     ]);
-    return { courses, tasks, reflections, learningPlans, semesters };
+    return { courses, tasks, reflections, learningPlans, semesters, notifications };
   },
 };

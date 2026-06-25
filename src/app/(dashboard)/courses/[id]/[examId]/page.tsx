@@ -1,25 +1,18 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAppState } from "@/hooks/use-app-state";
-import { Course, Exam } from "@/types/course";
-import { ExamModeState, ExamPreparationTopic } from "@/types/exam-mode";
-import {
-  getExamModeState,
-  saveExamModeState,
-  toggleTopic,
-  deleteTopic,
-  addTopic,
-  calcRevisionProgress,
-} from "@/lib/exam-mode/utils";
+import { ExamModeState } from "@/types/exam-mode";
+import { DataService } from "@/services/data.service";
+import { calcRevisionProgress } from "@/lib/exam-mode/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-  ArrowLeft,
+  
   Clock,
   GraduationCap,
   BookOpen,
@@ -31,7 +24,6 @@ import {
   Play,
   Link,
   ExternalLink,
-  Lightbulb,
   Target,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -81,56 +73,121 @@ export default function ExamModePage() {
 
   const { isLoaded: stateLoaded, courses, updateCourse } = useAppState();
 
-  const [course, setCourse] = useState<Course | null>(null);
-  const [exam, setExam] = useState<Exam | null>(null);
+  
   const [examState, setExamState] = useState<ExamModeState | null>(null);
   const [newTopicTitle, setNewTopicTitle] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Load course + find exam from state
-  useEffect(() => {
-    if (!stateLoaded) return;
+ // الكورس والامتحان بيتحسبوا مباشرة من courses (مش محتاجين useEffect لأنهم sync)
+  const course = useMemo(
+    () => courses.find((c) => c.id === courseId) ?? null,
+    [courses, courseId]
+  );
 
-    let c = courses.find((course) => course.id === courseId) ?? null;
-    if (!c) {
-      setIsLoaded(true);
-      return;
-    }
-    setCourse(c);
+  const exam = useMemo(() => {
+    if (!course) return null;
 
-    // Find exam anywhere in the course
-    let foundExam: Exam | null = null;
-    for (const week of c.weeklyPlan ?? []) {
+    for (const week of course.weeklyPlan ?? []) {
       const e = week.exams.find((ex) => ex.id === examId);
-      if (e) {
-        foundExam = e;
-        break;
-      }
+      if (e) return e;
     }
-    if (!foundExam) foundExam = c.exams?.find((e) => e.id === examId) ?? null;
-    setExam(foundExam);
+    return course.exams?.find((e) => e.id === examId) ?? null;
+  }, [course, examId]);
 
-    setExamState(getExamModeState(courseId, examId));
-    setIsLoaded(true);
-  }, [courseId, examId, stateLoaded, courses]);
-
-  // Persist state changes
+  // جلب exam mode state من الباك إند (هاد فعلاً async، فمكانه الصحيح useEffect)
   useEffect(() => {
-    if (examState && isLoaded) saveExamModeState(examState);
-  }, [examState, isLoaded]);
+    if (!stateLoaded || !course) return;
+
+    let isCancelled = false;
+
+    DataService.getExamModeState(courseId, examId)
+      .then((state) => {
+        if (!isCancelled) setExamState(state);
+      })
+      .catch(() => {
+        // أول مرة يفتح الطالب الامتحان ده، أو في مشكلة شبكة - نبدأ بحالة فاضية
+        if (!isCancelled) {
+          setExamState({
+            examId,
+            courseId,
+            topics: [],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          });
+        }
+      })
+      .finally(() => {
+        if (!isCancelled) setIsLoaded(true);
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [courseId, examId, stateLoaded, course]);
 
   const handleToggleTopic = (topicId: string) => {
-    setExamState((prev) => (prev ? toggleTopic(prev, topicId) : prev));
+    const topic = examState?.topics.find((t) => t.id === topicId);
+    if (!topic) return;
+
+    const newCompleted = !topic.completed;
+
+    // Optimistic update
+    setExamState((prev) =>
+      prev
+        ? {
+            ...prev,
+            topics: prev.topics.map((t) =>
+              t.id === topicId ? { ...t, completed: newCompleted } : t
+            ),
+          }
+        : prev
+    );
+
+    DataService.updateExamTopic(courseId, examId, topicId, { completed: newCompleted }).catch(
+      () => {
+        // رجّع القيمة القديمة لو فشل الطلب
+        setExamState((prev) =>
+          prev
+            ? {
+                ...prev,
+                topics: prev.topics.map((t) =>
+                  t.id === topicId ? { ...t, completed: !newCompleted } : t
+                ),
+              }
+            : prev
+        );
+      }
+    );
   };
 
   const handleDeleteTopic = (topicId: string) => {
-    setExamState((prev) => (prev ? deleteTopic(prev, topicId) : prev));
+    const previousTopics = examState?.topics ?? [];
+
+    setExamState((prev) =>
+      prev ? { ...prev, topics: prev.topics.filter((t) => t.id !== topicId) } : prev
+    );
+
+    DataService.deleteExamTopic(courseId, examId, topicId).catch(() => {
+      setExamState((prev) => (prev ? { ...prev, topics: previousTopics } : prev));
+    });
   };
 
   const handleAddTopic = () => {
-    if (!newTopicTitle.trim() || !examState) return;
-    setExamState(addTopic(examState, newTopicTitle));
+    const title = newTopicTitle.trim();
+    if (!title || !examState) return;
+
     setNewTopicTitle("");
+
+    DataService.addExamTopic(courseId, examId, { title })
+      .then((createdTopic) => {
+        setExamState((prev) =>
+          prev ? { ...prev, topics: [...prev.topics, createdTopic] } : prev
+        );
+      })
+      .catch(() => {
+        // لو فشل، نرجع العنوان للحقل عشان الطالب يحاول تاني
+        setNewTopicTitle(title);
+      });
   };
 
   const handleToggleExamCompletion = () => {
@@ -154,6 +211,18 @@ export default function ExamModePage() {
 
   const countdown = useCountdown(exam?.date, exam?.time);
   const progress = examState ? calcRevisionProgress(examState.topics) : 0;
+
+  if (stateLoaded && !course) {
+    return (
+      <div className="flex min-h-screen items-center justify-center flex-col gap-4">
+        <GraduationCap className="w-16 h-16 text-muted-foreground/30" />
+        <p className="text-muted-foreground">Exam not found.</p>
+        <Button variant="outline" onClick={() => router.back()}>
+          Go Back
+        </Button>
+      </div>
+    );
+  }
 
   if (!isLoaded || !exam) {
     return (
@@ -325,8 +394,8 @@ export default function ExamModePage() {
               <Progress value={progress} className="h-3 rounded-full" />
               {progress === 100 && (
                 <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1">
-                  <CheckCircle2 className="w-4 h-4" /> All topics reviewed!
-                  You're ready.
+                 <CheckCircle2 className="w-4 h-4" /> All topics reviewed!
+                  You&apos;re ready.
                 </p>
               )}
             </CardContent>

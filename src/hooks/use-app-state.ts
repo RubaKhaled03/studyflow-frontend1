@@ -119,13 +119,14 @@ export function useAppState() {
       }
 
       DataService.loadAllData()
-        .then(({ courses, tasks, reflections, learningPlans, semesters }) => {
+        .then(({ courses, tasks, reflections, learningPlans, semesters, notifications }) => {
           AppStore.update((prev) => ({
             ...prev,
             courses,
             tasks,
             reflections,
             selfLearningPlans: learningPlans,
+            notifications,
             academicPlanning: {
               ...prev.academicPlanning,
               semesters,
